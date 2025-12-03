@@ -3,7 +3,6 @@
 This repository contains the source for the OASCMS project. The codebase currently includes two frontend-related directories:
 
 - `frontend`: Main frontend project directory.
-- `frontend_delete_me`: Legacy or experimental frontend code preserved for reference.
 
 ## Getting Started
 1. Install dependencies in the relevant frontend directory with `npm install` or `yarn install`.
