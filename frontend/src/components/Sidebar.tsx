@@ -14,6 +14,9 @@ export default function Sidebar() {
   const navigation = [
     { name: t('dashboard'), href: `/${locale}`, icon: LayoutDashboard },
     { name: t('projects'), href: `/${locale}/projects`, icon: Building2 },
+    { name: 'Blocks', href: `/${locale}/blocks`, icon: Building2 },
+    { name: 'Buildings', href: `/${locale}/buildings`, icon: Building2 },
+    { name: 'Units', href: `/${locale}/units`, icon: Building2 },
     { name: t('contracts'), href: `/${locale}/contracts`, icon: FileText },
     { name: t('lottery'), href: `/${locale}/lottery`, icon: Ticket },
   ];
