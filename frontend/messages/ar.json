@@ -1,0 +1,50 @@
+{
+    "Common": {
+        "dashboard": "لوحة القيادة",
+        "projects": "المشاريع",
+        "contracts": "العقود",
+        "lottery": "القرعة",
+        "settings": "الإعدادات",
+        "new": "جديد",
+        "delete": "حذف",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "status": "الحالة",
+        "actions": "إجراءات"
+    },
+    "Dashboard": {
+        "totalProjects": "إجمالي المشاريع",
+        "activeContracts": "العقود النشطة",
+        "totalRevenue": "إجمالي الإيرادات",
+        "lotteryApplicants": "المتقدمين للقرعة",
+        "activeRound": "الجولة النشطة"
+    },
+    "Projects": {
+        "title": "المشاريع",
+        "newProject": "مشروع جديد",
+        "noProjects": "لا توجد مشاريع",
+        "getStarted": "ابدأ بإنشاء مشروع جديد.",
+        "name": "اسم المشروع",
+        "location": "الموقع",
+        "totalUnits": "إجمالي الوحدات",
+        "status": "الحالة"
+    },
+    "Contracts": {
+        "title": "العقود",
+        "newContract": "عقد جديد",
+        "noContracts": "لا توجد عقود",
+        "unit": "الوحدة",
+        "customer": "العميل",
+        "amount": "المبلغ",
+        "paymentSchedule": "جدول الدفع"
+    },
+    "Lottery": {
+        "title": "نظام القرعة",
+        "newRound": "جولة جديدة",
+        "applicants": "المتقدمين",
+        "winners": "الفائزين",
+        "odds": "الاحتمالات",
+        "drawWinners": "سحب الفائزين",
+        "addApplicant": "إضافة متقدم"
+    }
+}

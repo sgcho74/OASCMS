@@ -1,0 +1,50 @@
+{
+    "Common": {
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "contracts": "Contracts",
+        "lottery": "Lottery",
+        "settings": "Settings",
+        "new": "New",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save",
+        "status": "Status",
+        "actions": "Actions"
+    },
+    "Dashboard": {
+        "totalProjects": "Total Projects",
+        "activeContracts": "Active Contracts",
+        "totalRevenue": "Total Revenue",
+        "lotteryApplicants": "Lottery Applicants",
+        "activeRound": "Active Round"
+    },
+    "Projects": {
+        "title": "Projects",
+        "newProject": "New Project",
+        "noProjects": "No projects",
+        "getStarted": "Get started by creating a new project.",
+        "name": "Project Name",
+        "location": "Location",
+        "totalUnits": "Total Units",
+        "status": "Status"
+    },
+    "Contracts": {
+        "title": "Contracts",
+        "newContract": "New Contract",
+        "noContracts": "No contracts",
+        "unit": "Unit",
+        "customer": "Customer",
+        "amount": "Amount",
+        "paymentSchedule": "Payment Schedule"
+    },
+    "Lottery": {
+        "title": "Lottery System",
+        "newRound": "New Round",
+        "applicants": "Applicants",
+        "winners": "Winners",
+        "odds": "Odds",
+        "drawWinners": "Draw Winners",
+        "addApplicant": "Add Applicant"
+    }
+}
