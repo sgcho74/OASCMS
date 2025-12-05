@@ -1,4 +1,4 @@
-# OASCMS (Open Architecture Sales & Contract Management System)
+# OASCMS (Overseas Apartment Sale & Contract Management System)
 
 OASCMS is a comprehensive web-based application designed for managing real estate sales, contracts, and payments. It provides a robust platform for sales administrators, governance managers, and customers to interact with property data, track reservations, and manage financial records.
 
