@@ -4,13 +4,23 @@
         "projects": "프로젝트",
         "contracts": "계약 관리",
         "lottery": "청약 시스템",
+        "activeRound": "진행 중인 회차",
         "settings": "설정",
         "new": "신규",
         "delete": "삭제",
         "cancel": "취소",
         "save": "저장",
         "status": "상태",
-        "actions": "작업"
+        "actions": "작업",
+        "blocks": "동 관리",
+        "buildings": "건물 관리",
+        "units": "세대 관리",
+        "leads": "고객 리드",
+        "reservations": "청약/예약",
+        "payments": "수납 관리",
+        "importExport": "데이터 가져오기/내보내기",
+        "users": "사용자 관리",
+        "migrate": "데이터 마이그레이션"
     },
     "Dashboard": {
         "totalProjects": "총 프로젝트",
@@ -46,5 +56,12 @@
         "odds": "경쟁률",
         "drawWinners": "추첨 하기",
         "addApplicant": "신청자 추가"
+    },
+    "Units": {
+        "title": "세대 관리",
+        "importCsv": "CSV 가져오기",
+        "addUnit": "세대 추가",
+        "unitsSelected": "{count} 세대 선택됨",
+        "setStatus": "상태 변경..."
     }
 }

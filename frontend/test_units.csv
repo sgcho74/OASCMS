@@ -1,0 +1,5 @@
+ProjectId,BlockId,BuildingId,UnitNumber,Floor,TypeCode,BasePrice,Status
+Test Project,Block A,101,101,1,84A,500000,Available
+Test Project,Block A,101,102,1,84A,510000,Available
+Test Project,Block A,101,201,2,84B,520000,Reserved
+Test Project,Block A,101,202,2,84B,530000,Sold

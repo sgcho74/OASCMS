@@ -1,34 +1,47 @@
-import { useTranslations } from 'next-intl';
+'use client';
 
-export default function Home() {
-  const t = useTranslations('Dashboard');
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import DashboardStats from '@/components/dashboard/DashboardStats';
+import SalesTrendChart from '@/components/dashboard/SalesTrendChart';
+import InventoryDistributionChart from '@/components/dashboard/InventoryDistributionChart';
+import RecentActivityList from '@/components/dashboard/RecentActivityList';
+import CustomerPortal from '@/components/customer/CustomerPortal';
 
+export default function DashboardPage() {
+  const [isHydrated, setIsHydrated] = useState(false);
+  const { currentUser, hasRole } = useAuthStore();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) return null;
+
+  // Show Customer Portal for customer role
+  if (hasRole('customer')) {
+    return <CustomerPortal />;
+  }
+
+  // Show Executive Dashboard for all other roles
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {/* Stats Cards */}
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-medium text-gray-500">{t('totalProjects')}</h3>
-        <p className="mt-2 text-3xl font-bold text-gray-900">12</p>
-        <span className="text-sm text-green-600">+2 this month</span>
-      </div>
-      
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-medium text-gray-500">{t('activeContracts')}</h3>
-        <p className="mt-2 text-3xl font-bold text-gray-900">85</p>
-        <span className="text-sm text-green-600">+12% from last month</span>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Executive Dashboard</h1>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-medium text-gray-500">{t('totalRevenue')}</h3>
-        <p className="mt-2 text-3xl font-bold text-gray-900">$4.2M</p>
-        <span className="text-sm text-green-600">+8% vs target</span>
+      <DashboardStats />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <SalesTrendChart />
+        </div>
+        <div>
+          <InventoryDistributionChart />
+        </div>
       </div>
 
-      <div className="rounded-lg bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-medium text-gray-500">{t('lotteryApplicants')}</h3>
-        <p className="mt-2 text-3xl font-bold text-gray-900">1,240</p>
-        <span className="text-sm text-blue-600">{t('activeRound')} #4</span>
-      </div>
+      <RecentActivityList />
     </div>
   );
 }

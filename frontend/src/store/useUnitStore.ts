@@ -1,12 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UnitStatus = 
-  | 'Available' 
-  | 'Reserved' 
-  | 'Sold' 
-  | 'OnHold' 
-  | 'LotteryLocked' 
+export type UnitStatus =
+  | 'Available'
+  | 'Reserved'
+  | 'Sold'
+  | 'OnHold'
+  | 'LotteryLocked'
   | 'ContractPending';
 
 export interface Unit {
@@ -35,6 +35,8 @@ interface UnitState {
   getUnitsByBuilding: (buildingId: string) => Unit[];
   getUnitsByProject: (projectId: string) => Unit[];
   getAvailableUnits: (projectId?: string) => Unit[];
+  bulkAddUnits: (units: Omit<Unit, 'id' | 'createdAt'>[]) => void;
+  setUnitStatus: (ids: string[], status: UnitStatus) => void;
 }
 
 export const useUnitStore = create<UnitState>()(
@@ -70,6 +72,23 @@ export const useUnitStore = create<UnitState>()(
           ? units.filter((u) => u.projectId === projectId && u.status === 'Available')
           : units.filter((u) => u.status === 'Available');
       },
+      bulkAddUnits: (newUnits) =>
+        set((state) => ({
+          units: [
+            ...state.units,
+            ...newUnits.map((u) => ({
+              ...u,
+              id: crypto.randomUUID(),
+              createdAt: new Date().toISOString(),
+            })),
+          ],
+        })),
+      setUnitStatus: (ids, status) =>
+        set((state) => ({
+          units: state.units.map((u) =>
+            ids.includes(u.id) ? { ...u, status } : u
+          ),
+        })),
     }),
     {
       name: 'oascms-units',

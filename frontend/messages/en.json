@@ -4,13 +4,23 @@
         "projects": "Projects",
         "contracts": "Contracts",
         "lottery": "Lottery",
+        "activeRound": "Active Round",
         "settings": "Settings",
         "new": "New",
         "delete": "Delete",
         "cancel": "Cancel",
         "save": "Save",
         "status": "Status",
-        "actions": "Actions"
+        "actions": "Actions",
+        "blocks": "Blocks",
+        "buildings": "Buildings",
+        "units": "Units",
+        "leads": "Leads",
+        "reservations": "Reservations",
+        "payments": "Payments",
+        "importExport": "Import/Export",
+        "users": "Users",
+        "migrate": "Migrate"
     },
     "Dashboard": {
         "totalProjects": "Total Projects",
@@ -46,5 +56,12 @@
         "odds": "Odds",
         "drawWinners": "Draw Winners",
         "addApplicant": "Add Applicant"
+    },
+    "Units": {
+        "title": "Unit Inventory",
+        "importCsv": "Import CSV",
+        "addUnit": "Add Unit",
+        "unitsSelected": "{count} units selected",
+        "setStatus": "Set Status..."
     }
 }

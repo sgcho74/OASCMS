@@ -56,7 +56,7 @@ export default function BlocksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Blocks</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Blocks</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
@@ -67,12 +67,12 @@ export default function BlocksPage() {
       </div>
 
       {/* Filter */}
-      <div className="rounded-lg bg-white p-4 shadow-sm">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Project</label>
+      <div className="rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+        <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Filter by Project</label>
         <select
           value={selectedProjectId}
           onChange={(e) => setSelectedProjectId(e.target.value)}
-          className="block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm"
+          className="block w-full rounded-md border-gray-300 px-3 py-2 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Projects</option>
           {projects.map((p) => (
@@ -85,23 +85,23 @@ export default function BlocksPage() {
 
       {/* Blocks Grid */}
       {filteredBlocks.length === 0 ? (
-        <div className="flex h-64 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white">
-          <Square className="h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No blocks</h3>
-          <p className="mt-1 text-sm text-gray-500">Get started by creating a new block.</p>
+        <div className="flex h-64 flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800">
+          <Square className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No blocks</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by creating a new block.</p>
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredBlocks.map((block) => {
             const project = projects.find((p) => p.id === block.projectId);
             return (
-              <div key={block.id} className="rounded-lg border bg-white p-6 shadow-sm">
+              <div key={block.id} className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{block.blockName}</h3>
-                    <p className="text-sm text-gray-500">Code: {block.blockCode}</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{block.blockName}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Code: {block.blockCode}</p>
                     {block.phaseNo && (
-                      <p className="text-sm text-gray-500">Phase: {block.phaseNo}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Phase: {block.phaseNo}</p>
                     )}
                   </div>
                   <span
@@ -118,7 +118,7 @@ export default function BlocksPage() {
                 </div>
 
                 <div className="mt-4">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-medium">Project:</span> {project?.name || 'Unknown'}
                   </p>
                 </div>
@@ -126,7 +126,7 @@ export default function BlocksPage() {
                 <div className="mt-6 flex justify-end border-t pt-4">
                   <button
                     onClick={() => deleteBlock(block.id)}
-                    className="text-sm text-red-600 hover:text-red-900"
+                    className="text-sm text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Delete
                   </button>
@@ -140,16 +140,16 @@ export default function BlocksPage() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6">
-            <h2 className="text-xl font-bold mb-4">Create New Block</h2>
+          <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-gray-800">
+            <h2 className="text-xl font-bold mb-4 dark:text-gray-100">Create New Block</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Project</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project</label>
                 <select
                   required
                   value={formData.projectId}
                   onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">Select Project</option>
                   {projects.map((p) => (
@@ -161,48 +161,48 @@ export default function BlocksPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Block Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Block Code</label>
                 <input
                   type="text"
                   required
                   value={formData.blockCode}
                   onChange={(e) => setFormData({ ...formData, blockCode: e.target.value })}
                   placeholder="e.g. A, B, 1지구"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Block Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Block Name</label>
                 <input
                   type="text"
                   required
                   value={formData.blockName}
                   onChange={(e) => setFormData({ ...formData, blockName: e.target.value })}
                   placeholder="e.g. Block A, 1차 단지"
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phase No. (Optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phase No. (Optional)</label>
                 <input
                   type="number"
                   value={formData.phaseNo}
                   onChange={(e) => setFormData({ ...formData, phaseNo: e.target.value })}
                   placeholder="1, 2, 3..."
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) =>
                     setFormData({ ...formData, status: e.target.value as typeof formData.status })
                   }
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="Planned">Planned</option>
                   <option value="OnSale">On Sale</option>
@@ -214,7 +214,7 @@ export default function BlocksPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
