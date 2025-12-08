@@ -5,13 +5,16 @@ import { useBuildingStore } from '@/store/useBuildingStore';
 import { useBlockStore } from '@/store/useBlockStore';
 import { useProjectStore } from '@/store/useProjectStore';
 import { Plus, Building } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function BuildingsPage() {
-  const { buildings, addBuilding, deleteBuilding } = useBuildingStore();
+  const tCommon = useTranslations('Common');
+  const { buildings, addBuilding, deleteBuilding, updateBuilding } = useBuildingStore();
   const { blocks } = useBlockStore();
   const { projects } = useProjectStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState({ projectId: '', blockId: '' });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     projectId: '',
@@ -29,19 +32,44 @@ export default function BuildingsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addBuilding({
-      projectId: formData.projectId,
-      blockId: formData.blockId,
-      buildingNo: formData.buildingNo,
-      floors: Number(formData.floors),
-      totalUnits: formData.totalUnits ? Number(formData.totalUnits) : undefined,
-      status: formData.status,
-    });
+    if (editingId) {
+      updateBuilding(editingId, {
+        projectId: formData.projectId,
+        blockId: formData.blockId,
+        buildingNo: formData.buildingNo,
+        floors: Number(formData.floors),
+        totalUnits: formData.totalUnits ? Number(formData.totalUnits) : undefined,
+        status: formData.status,
+      });
+    } else {
+      addBuilding({
+        projectId: formData.projectId,
+        blockId: formData.blockId,
+        buildingNo: formData.buildingNo,
+        floors: Number(formData.floors),
+        totalUnits: formData.totalUnits ? Number(formData.totalUnits) : undefined,
+        status: formData.status,
+      });
+    }
     setIsModalOpen(false);
     resetForm();
   };
 
+  const handleEdit = (building: any) => {
+    setEditingId(building.id);
+    setFormData({
+      projectId: building.projectId,
+      blockId: building.blockId,
+      buildingNo: building.buildingNo,
+      floors: String(building.floors),
+      totalUnits: building.totalUnits ? String(building.totalUnits) : '',
+      status: building.status,
+    });
+    setIsModalOpen(true);
+  };
+
   const resetForm = () => {
+    setEditingId(null);
     setFormData({
       projectId: '',
       blockId: '',
@@ -69,7 +97,10 @@ export default function BuildingsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Buildings</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            resetForm();
+            setIsModalOpen(true);
+          }}
           className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -140,13 +171,12 @@ export default function BuildingsPage() {
                     </p>
                   </div>
                   <span
-                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      building.status === 'Planned'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : building.status === 'UnderConstruction'
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${building.status === 'Planned'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : building.status === 'UnderConstruction'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-green-100 text-green-800'
-                    }`}
+                      }`}
                   >
                     {building.status}
                   </span>
@@ -166,9 +196,19 @@ export default function BuildingsPage() {
                   )}
                 </div>
 
-                <div className="mt-6 flex justify-end border-t pt-4">
+                <div className="mt-6 flex justify-end border-t pt-4 space-x-3">
                   <button
-                    onClick={() => deleteBuilding(building.id)}
+                    onClick={() => handleEdit(building)}
+                    className="text-sm text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(tCommon('deleteConfirm'))) {
+                        deleteBuilding(building.id);
+                      }
+                    }}
                     className="text-sm text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Delete
@@ -184,7 +224,9 @@ export default function BuildingsPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-gray-800">
-            <h2 className="text-xl font-bold mb-4 dark:text-gray-100">Create New Building</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
+              {editingId ? 'Edit Building' : 'Create New Building'}
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project</label>
@@ -288,7 +330,7 @@ export default function BuildingsPage() {
                   type="submit"
                   className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
                 >
-                  Create Building
+                  {editingId ? 'Update Building' : 'Create Building'}
                 </button>
               </div>
             </form>

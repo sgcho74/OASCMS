@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG 좌표 변환기 - 픽셀 → 퍼센트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            color: #4CAF50;
+        }
+
+        .input-section, .output-section {
+            background-color: #2d2d2d;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .input-section h2, .output-section h2 {
+            color: #4CAF50;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            background-color: #1e1e1e;
+            color: #4CAF50;
+            border: 1px solid #444;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .info {
+            background-color: #3d3d3d;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .info code {
+            color: #ffc107;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .output-code {
+            background-color: #1e1e1e;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .output-code pre {
+            color: #4CAF50;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            background-color: #28a745;
+            margin-top: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 SVG 좌표 변환기 (픽셀 → 퍼센트)</h1>
+        
+        <div class="input-section">
+            <h2>1. SVG 코드 입력</h2>
+            <div class="info">
+                <strong>사용법:</strong><br>
+                • 제공받은 SVG 코드 전체를 아래에 붙여넣으세요<br>
+                • viewBox 크기와 polygon 좌표를 자동으로 감지합니다<br>
+                • viewBox는 <code>0 0 2496 1696</code> 형식이어야 합니다
+            </div>
+            <textarea id="svgInput" placeholder="SVG 코드를 여기에 붙여넣으세요..."></textarea>
+            <button onclick="convertCoordinates()">변환하기</button>
+        </div>
+
+        <div class="output-section">
+            <h2>2. 변환된 JavaScript 코드</h2>
+            <div class="info">
+                아래 코드를 <code>index.html</code>의 <code>blocks</code> 배열에 복사하여 사용하세요.
+            </div>
+            <div class="output-code">
+                <pre id="outputCode">변환 결과가 여기에 표시됩니다...</pre>
+            </div>
+            <button class="copy-btn" onclick="copyToClipboard()">코드 복사</button>
+        </div>
+    </div>
+
+    <script>
+        function convertCoordinates() {
+            const svgCode = document.getElementById('svgInput').value;
+            if (!svgCode.trim()) {
+                alert('SVG 코드를 입력하세요.');
+                return;
+            }
+
+            // viewBox 추출
+            const viewBoxMatch = svgCode.match(/viewBox="([^"]+)"/);
+            if (!viewBoxMatch) {
+                alert('viewBox를 찾을 수 없습니다.');
+                return;
+            }
+
+            const viewBox = viewBoxMatch[1].split(/\s+/);
+            const svgWidth = parseFloat(viewBox[2]);
+            const svgHeight = parseFloat(viewBox[3]);
+
+            if (!svgWidth || !svgHeight) {
+                alert('viewBox 크기를 파싱할 수 없습니다.');
+                return;
+            }
+
+            // 모든 polygon 추출
+            const polygonRegex = /<polygon[^>]*points="([^"]+)"[^>]*data-index="(\d+)"[^>]*>/g;
+            const polygons = [];
+            let match;
+
+            while ((match = polygonRegex.exec(svgCode)) !== null) {
+                const pointsString = match[1];
+                const dataIndex = parseInt(match[2]);
+                
+                // 픽셀 좌표를 퍼센트로 변환
+                const pixelPoints = pointsString.trim().split(/\s+/);
+                if (pixelPoints.length < 2) continue; // 유효하지 않은 polygon 스킵
+
+                const percentPoints = [];
+                for (let i = 0; i < pixelPoints.length; i += 2) {
+                    const x = parseFloat(pixelPoints[i]);
+                    const y = parseFloat(pixelPoints[i + 1]);
+                    
+                    if (isNaN(x) || isNaN(y)) continue;
+                    
+                    const percentX = ((x / svgWidth) * 100).toFixed(2);
+                    const percentY = ((y / svgHeight) * 100).toFixed(2);
+                    percentPoints.push(`${percentX}% ${percentY}%`);
+                }
+
+                if (percentPoints.length >= 3) { // 최소 3개 점이 있어야 polygon
+                    polygons.push({
+                        index: dataIndex,
+                        points: percentPoints.join(', ')
+                    });
+                }
+            }
+
+            if (polygons.length === 0) {
+                alert('polygon을 찾을 수 없습니다.');
+                return;
+            }
+
+            // JavaScript 코드 생성
+            let jsCode = 'const blocks = [\n';
+            polygons.sort((a, b) => a.index - b.index);
+            
+            polygons.forEach((poly, idx) => {
+                const blockId = idx + 1;
+                jsCode += `    { \n`;
+                jsCode += `        id: ${blockId}, \n`;
+                jsCode += `        name: "${String.fromCharCode(64 + blockId)}동", // 원하는 이름으로 변경하세요\n`;
+                jsCode += `        households: ${Math.floor(950 + Math.random() * 100)}, // 세대수 조정 필요\n`;
+                jsCode += `        description: "블럭 설명을 입력하세요",\n`;
+                jsCode += `        points: "${poly.points}"\n`;
+                jsCode += `    }`;
+                if (idx < polygons.length - 1) jsCode += ',';
+                jsCode += '\n';
+            });
+            
+            jsCode += '];';
+
+            document.getElementById('outputCode').textContent = jsCode;
+        }
+
+        function copyToClipboard() {
+            const code = document.getElementById('outputCode').textContent;
+            if (code === '변환 결과가 여기에 표시됩니다...') {
+                alert('먼저 변환을 실행하세요.');
+                return;
+            }
+
+            navigator.clipboard.writeText(code).then(() => {
+                alert('코드가 클립보드에 복사되었습니다!');
+            }).catch(err => {
+                console.error('복사 실패:', err);
+                alert('복사에 실패했습니다. 수동으로 복사해주세요.');
+            });
+        }
+
+        // 예시 SVG 코드 미리 채우기 (선택사항)
+        window.addEventListener('load', () => {
+            const exampleSvg = `<!-- 제공받은 SVG 코드를 여기에 붙여넣으세요 -->`;
+            // document.getElementById('svgInput').value = exampleSvg;
+        });
+    </script>
+</body>
+</html>
+

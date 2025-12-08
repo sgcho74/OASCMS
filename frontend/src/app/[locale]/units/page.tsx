@@ -81,7 +81,7 @@ export default function UnitsPage() {
             <Upload className="mr-2 h-4 w-4" />
             {t('importCsv')}
           </button>
-          <button 
+          <button
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
@@ -134,7 +134,11 @@ export default function UnitsPage() {
         selectedUnits={selectedUnits}
         onSelectUnit={handleSelectUnit}
         onSelectAll={handleSelectAll}
-        onDelete={deleteUnit}
+        onDelete={(id) => {
+          if (confirm(tCommon('deleteConfirm'))) {
+            deleteUnit(id);
+          }
+        }}
         onStatusUpdate={(id, status) => setUnitStatus([id], status)}
         onEdit={(id) => setEditingUnitId(id)}
       />

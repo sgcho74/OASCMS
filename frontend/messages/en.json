@@ -6,12 +6,11 @@
         "lottery": "Lottery",
         "activeRound": "Active Round",
         "settings": "Settings",
-        "new": "New",
-        "delete": "Delete",
-        "cancel": "Cancel",
-        "save": "Save",
+        "name": "Project Name",
+        "location": "Location",
+        "totalUnits": "Total Units",
         "status": "Status",
-        "actions": "Actions",
+        "birdseye": "Bird's Eye View",
         "blocks": "Blocks",
         "buildings": "Buildings",
         "units": "Units",
@@ -20,24 +19,13 @@
         "payments": "Payments",
         "importExport": "Import/Export",
         "users": "Users",
-        "migrate": "Migrate"
-    },
-    "Dashboard": {
-        "totalProjects": "Total Projects",
-        "activeContracts": "Active Contracts",
-        "totalRevenue": "Total Revenue",
-        "lotteryApplicants": "Lottery Applicants",
-        "activeRound": "Active Round"
-    },
-    "Projects": {
-        "title": "Projects",
-        "newProject": "New Project",
-        "noProjects": "No projects",
-        "getStarted": "Get started by creating a new project.",
-        "name": "Project Name",
-        "location": "Location",
-        "totalUnits": "Total Units",
-        "status": "Status"
+        "migrate": "Migrate",
+        "deleteConfirm": "Are you sure you want to delete this item?",
+        "actions": "Actions",
+        "new": "New",
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "save": "Save"
     },
     "Contracts": {
         "title": "Contracts",

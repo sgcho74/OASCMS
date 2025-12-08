@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대단지 아파트 조감도 안내 맵</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* 좌측 - 맵 영역 */
+        .map-section {
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .map-image.hidden {
+            display: none;
+        }
+
+        .svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .svg-overlay svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .svg-overlay polygon {
+            pointer-events: all;
+            fill: transparent;
+            stroke: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .svg-overlay polygon:hover {
+            fill: rgba(0, 255, 0, 0.4);
+            stroke: rgba(0, 255, 0, 0.8);
+            stroke-width: 2;
+        }
+
+        .svg-overlay polygon.active {
+            fill: rgba(0, 123, 255, 0.5);
+            stroke: rgba(0, 123, 255, 1);
+            stroke-width: 3;
+        }
+
+        /* 이미지 로드 실패 시 placeholder */
+        .map-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .map-placeholder svg {
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+        }
+
+        /* 우측 - 정보 패널 */
+        .info-panel {
+            background-color: #ffffff;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .info-panel h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .info-card .households {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+        }
+
+        .info-card .description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .info-placeholder {
+            text-align: center;
+            color: #999;
+            padding: 3rem 1rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .info-placeholder::before {
+            content: "📍";
+            display: block;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60vh 40vh;
+            }
+
+            .map-section {
+                height: 100%;
+            }
+
+            .info-panel {
+                padding: 1.5rem;
+            }
+
+            .info-panel h2 {
+                font-size: 1.3rem;
+            }
+
+            .info-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                grid-template-rows: 50vh 50vh;
+            }
+
+            .info-panel {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <!-- 좌측 - 맵 영역 -->
+        <section class="map-section">
+            <div class="map-wrapper">
+                <img src="placeholders/map_2d.png" alt="대단지 아파트 조감도" class="map-image" id="mapImage">
+                <div class="map-placeholder" id="mapPlaceholder" style="display: none;">
+                    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="1200" height="800" fill="#e8f5e9"/>
+                        <text x="600" y="400" font-family="Arial, sans-serif" font-size="24" fill="#757575" text-anchor="middle" opacity="0.7">
+                            조감도 이미지를 placeholders/map-image.jpg에 추가하세요
+                        </text>
+                    </svg>
+                </div>
+                <div class="svg-overlay" id="svgOverlay">
+                    <svg id="mapSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <!-- Polygon 요소들이 JavaScript로 동적 생성됩니다 -->
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- 우측 - 정보 패널 -->
+        <aside class="info-panel">
+            <h2>블럭 정보</h2>
+            <div id="infoContent">
+                <div class="info-placeholder">
+                    구역을 선택하세요
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // 블럭 데이터 구조
+        // 제공된 SVG 코드에서 변환된 좌표 (viewBox: 2496x1696)
+        // data-index 7, 9는 유효하지 않아 제외됨
+        const blocks = [
+            { 
+                id: 1, 
+                name: "1 Block", 
+                households: 1020,
+                description: "쾌적한 공원 뷰와 조용한 주거 환경",
+                points: "45.11% 57.16%, 69.04% 60.52%, 69.80% 85.81%, 32.95% 78.55%, 27.92% 71.42%"
+            },
+            { 
+                id: 2, 
+                name: "2 Block", 
+                households: 980,
+                description: "지하철역 인접, 교통 편리",
+                points: "25.07% 40.53%, 43.59% 55.35%, 25.93% 70.02%, 9.12% 48.78%"
+            },
+            { 
+                id: 3, 
+                name: "3 Block", 
+                households: 1050,
+                description: "중앙 공원 조망, 프리미엄 위치",
+                points: "8.07% 48.08%, 0.85% 37.46%, 5.22% 29.63%, 12.82% 24.32%, 22.60% 26.97%, 18.14% 33.40%, 24.31% 39.69%"
+            },
+            { 
+                id: 4, 
+                name: "4 Block", 
+                households: 995,
+                description: "상업시설 인접, 생활 편의성 우수",
+                points: "14.53% 23.06%, 22.51% 17.47%, 29.63% 19.43%, 32.38% 22.78%, 23.55% 26.28%"
+            },
+            { 
+                id: 5, 
+                name: "5 Block", 
+                households: 1035,
+                description: "학교 인접, 교육 환경 최적화",
+                points: "45.96% 23.06%, 50.81% 18.59%, 66.95% 22.22%, 63.72% 26.97%"
+            },
+            { 
+                id: 6, 
+                name: "6 Block", 
+                households: 1010,
+                description: "넓은 조경 공간, 쾌적한 환경",
+                points: "31.91% 19.85%, 33.52% 22.64%, 38.18% 21.66%, 44.73% 22.36%, 49.67% 18.17%, 38.18% 15.93%"
+            },
+            { 
+                id: 7, 
+                name: "7 Block", 
+                households: 990,
+                description: "주차 시설 완비, 주거 편의성",
+                points: "68.66% 27.11%, 69.99% 22.08%, 80.72% 24.60%, 84.52% 26.28%, 74.26% 29.35%"
+            },
+            { 
+                id: 8, 
+                name: "8 Block", 
+                households: 1045,
+                description: "중앙 위치, 모든 시설 접근 용이",
+                points: "74.36% 30.75%, 85.95% 27.39%, 93.54% 41.51%, 75.88% 39.97%"
+            },
+            { 
+                id: 9, 
+                name: "9 Block", 
+                households: 1005,
+                description: "조용한 주거 환경, 프라이버시 보장",
+                points: "76.26% 42.35%, 95.06% 44.16%, 99.62% 54.79%, 77.97% 52.55%"
+            },
+            { 
+                id: 10, 
+                name: "10 Block", 
+                households: 1025,
+                description: "공원과 인접, 자연 친화적",
+                points: "78.25% 54.23%, 99.53% 56.60%, 99.62% 70.72%, 80.44% 60.10%"
+            },
+            { 
+                id: 11, 
+                name: "11 Block", 
+                households: 975,
+                description: "상가 인접, 일상 생활 편리",
+                points: "88.98% 69.88%, 98.96% 76.17%, 98.86% 90.57%, 88.89% 89.03%, 85.00% 75.61%"
+            },
+            { 
+                id: 12, 
+                name: "12 Block", 
+                households: 1020,
+                description: "최신 시설, 프리미엄 라이프스타일",
+                points: "59.35% 37.74%, 52.90% 48.08%, 67.52% 53.53%, 69.80% 47.66%, 68.47% 40.39%"
+            }
+        ];
+
+        // DOM 요소 참조
+        const mapImage = document.getElementById('mapImage');
+        const mapPlaceholder = document.getElementById('mapPlaceholder');
+        const mapSvg = document.getElementById('mapSvg');
+        const svgOverlay = document.getElementById('svgOverlay');
+        const infoContent = document.getElementById('infoContent');
+
+        // SVG viewBox 업데이트 함수
+        function updateSvgViewBox() {
+            if (!mapImage.complete || mapImage.naturalWidth === 0) return;
+            
+            const rect = mapImage.getBoundingClientRect();
+            const naturalWidth = mapImage.naturalWidth;
+            const naturalHeight = mapImage.naturalHeight;
+            
+            // SVG viewBox를 이미지의 실제 크기에 맞춤
+            mapSvg.setAttribute('viewBox', `0 0 ${naturalWidth} ${naturalHeight}`);
+            mapSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+
+        // 퍼센트 좌표를 픽셀 좌표로 변환
+        function percentToPixel(pointsString, imgWidth, imgHeight) {
+            // "20% 10%, 40% 15%, ..." 형식을 파싱
+            const points = pointsString.split(',').map(p => {
+                const [x, y] = p.trim().split(' ').map(v => parseFloat(v));
+                return {
+                    x: (x / 100) * imgWidth,
+                    y: (y / 100) * imgHeight
+                };
+            });
+            
+            return points.map(p => `${p.x},${p.y}`).join(' ');
+        }
+
+        // Polygon 생성 함수
+        function createPolygons() {
+            if (!mapImage.complete || mapImage.naturalWidth === 0) {
+                // 이미지가 아직 로드되지 않았으면 대기
+                setTimeout(createPolygons, 100);
+                return;
+            }
+
+            const imgWidth = mapImage.naturalWidth;
+            const imgHeight = mapImage.naturalHeight;
+
+            // 기존 polygon 제거
+            mapSvg.innerHTML = '';
+
+            blocks.forEach(block => {
+                if (!block.points) return;
+
+                const pixelPoints = percentToPixel(block.points, imgWidth, imgHeight);
+                
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', pixelPoints);
+                polygon.setAttribute('data-block-id', block.id);
+                polygon.setAttribute('class', 'block-polygon');
+                
+                mapSvg.appendChild(polygon);
+            });
+
+            updateSvgViewBox();
+        }
+
+        // 정보 카드 렌더링 함수
+        function renderInfoCard(block) {
+            return `
+                <div class="info-card">
+                    <h3>${block.name}</h3>
+                    <div class="households">세대수: ${block.households.toLocaleString()}세대</div>
+                    <div class="description">${block.description}</div>
+                </div>
+            `;
+        }
+
+        // 정보 패널 업데이트 함수
+        function updateInfoPanel(blockId) {
+            const block = blocks.find(b => b.id === blockId);
+            if (block) {
+                infoContent.innerHTML = renderInfoCard(block);
+                // LocalStorage에 저장
+                localStorage.setItem('lastSelectedBlock', blockId.toString());
+            } else {
+                infoContent.innerHTML = '<div class="info-placeholder">구역을 선택하세요</div>';
+            }
+        }
+
+        // 활성 polygon 표시 함수
+        function setActivePolygon(blockId) {
+            // 모든 polygon에서 active 클래스 제거
+            document.querySelectorAll('.block-polygon').forEach(poly => {
+                poly.classList.remove('active');
+            });
+            // 선택된 polygon에 active 클래스 추가
+            const selectedPoly = document.querySelector(`.block-polygon[data-block-id="${blockId}"]`);
+            if (selectedPoly) {
+                selectedPoly.classList.add('active');
+            }
+        }
+
+        // 이벤트 위임을 사용한 이벤트 핸들러
+        mapSvg.addEventListener('mouseenter', (e) => {
+            if (e.target.classList.contains('block-polygon')) {
+                const blockId = parseInt(e.target.getAttribute('data-block-id'));
+                updateInfoPanel(blockId);
+            }
+        }, true);
+
+        mapSvg.addEventListener('mouseleave', (e) => {
+            if (e.target.classList.contains('block-polygon')) {
+                // 마우스가 polygon을 벗어날 때는 LocalStorage에 저장된 정보를 유지
+                const lastSelected = localStorage.getItem('lastSelectedBlock');
+                if (lastSelected) {
+                    updateInfoPanel(parseInt(lastSelected));
+                    setActivePolygon(parseInt(lastSelected));
+                } else {
+                    infoContent.innerHTML = '<div class="info-placeholder">구역을 선택하세요</div>';
+                }
+            }
+        }, true);
+
+        mapSvg.addEventListener('click', (e) => {
+            if (e.target.classList.contains('block-polygon')) {
+                const blockId = parseInt(e.target.getAttribute('data-block-id'));
+                setActivePolygon(blockId);
+                updateInfoPanel(blockId);
+            }
+        });
+
+        // 이미지 로드 체크
+        function checkImageLoad() {
+            if (mapImage.complete && mapImage.naturalHeight !== 0) {
+                // 이미지가 성공적으로 로드됨
+                mapPlaceholder.style.display = 'none';
+                createPolygons();
+            } else {
+                // 이미지가 없거나 로드 실패
+                mapImage.classList.add('hidden');
+                mapPlaceholder.style.display = 'flex';
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        function init() {
+            // 이미지 로드 상태 확인
+            if (mapImage.complete) {
+                checkImageLoad();
+            } else {
+                mapImage.addEventListener('load', () => {
+                    checkImageLoad();
+                    // 윈도우 리사이즈 시 viewBox 업데이트
+                    window.addEventListener('resize', () => {
+                        updateSvgViewBox();
+                        createPolygons();
+                    });
+                });
+                mapImage.addEventListener('error', () => {
+                    mapImage.classList.add('hidden');
+                    mapPlaceholder.style.display = 'flex';
+                });
+            }
+            
+            // LocalStorage에서 마지막 선택된 블럭 불러오기
+            const lastSelected = localStorage.getItem('lastSelectedBlock');
+            if (lastSelected) {
+                const blockId = parseInt(lastSelected);
+                updateInfoPanel(blockId);
+                // 이미지가 로드된 후에 active 표시
+                setTimeout(() => {
+                    setActivePolygon(blockId);
+                }, 500);
+            }
+        }
+
+        // 페이지 로드 완료 시 초기화 실행
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
+

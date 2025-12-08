@@ -24,6 +24,7 @@ export default function EditUnitModal({ isOpen, onClose, unitId }: EditUnitModal
                     basePrice: unit.basePrice,
                     unitNumber: unit.unitNumber,
                     floor: unit.floor,
+                    status: unit.status,
                 });
             }
         }
@@ -104,6 +105,21 @@ export default function EditUnitModal({ isOpen, onClose, unitId }: EditUnitModal
                             onChange={(e) => setFormData({ ...formData, basePrice: Number(e.target.value) })}
                             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                        <select
+                            value={formData.status || 'Available'}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                        >
+                            <option value="Available">Available</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Sold">Sold</option>
+                            <option value="OnHold">On Hold</option>
+                            <option value="ContractPending">Contract Pending</option>
+                        </select>
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4">

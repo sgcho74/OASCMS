@@ -3,15 +3,14 @@
         "dashboard": "대시보드",
         "projects": "프로젝트",
         "contracts": "계약 관리",
-        "lottery": "청약 시스템",
+        "lottery": "추첨",
         "activeRound": "진행 중인 회차",
         "settings": "설정",
-        "new": "신규",
-        "delete": "삭제",
-        "cancel": "취소",
-        "save": "저장",
+        "name": "프로젝트명",
+        "location": "위치",
+        "totalUnits": "총 세대수",
         "status": "상태",
-        "actions": "작업",
+        "birdseye": "조감도",
         "blocks": "동 관리",
         "buildings": "건물 관리",
         "units": "세대 관리",
@@ -20,24 +19,13 @@
         "payments": "수납 관리",
         "importExport": "데이터 가져오기/내보내기",
         "users": "사용자 관리",
-        "migrate": "데이터 마이그레이션"
-    },
-    "Dashboard": {
-        "totalProjects": "총 프로젝트",
-        "activeContracts": "진행 중인 계약",
-        "totalRevenue": "총 매출",
-        "lotteryApplicants": "청약 신청자",
-        "activeRound": "진행 중인 회차"
-    },
-    "Projects": {
-        "title": "프로젝트 관리",
-        "newProject": "새 프로젝트",
-        "noProjects": "프로젝트가 없습니다",
-        "getStarted": "새 프로젝트를 생성하여 시작하세요.",
-        "name": "프로젝트명",
-        "location": "위치",
-        "totalUnits": "총 세대수",
-        "status": "상태"
+        "migrate": "데이터 마이그레이션",
+        "deleteConfirm": "정말로 삭제하시겠습니까?",
+        "actions": "작업",
+        "new": "신규",
+        "delete": "삭제",
+        "cancel": "취소",
+        "save": "저장"
     },
     "Contracts": {
         "title": "계약 관리",
@@ -49,7 +37,7 @@
         "paymentSchedule": "납부 일정"
     },
     "Lottery": {
-        "title": "청약 시스템",
+        "title": "추첨",
         "newRound": "새 회차 생성",
         "applicants": "신청자",
         "winners": "당첨자",

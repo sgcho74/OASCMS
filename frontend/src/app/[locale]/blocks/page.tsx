@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { useBlockStore } from '@/store/useBlockStore';
 import { useProjectStore } from '@/store/useProjectStore';
 import { Plus, Square } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function BlocksPage() {
-  const { blocks, addBlock, deleteBlock } = useBlockStore();
+  const tCommon = useTranslations('Common');
+  const { blocks, addBlock, deleteBlock, updateBlock } = useBlockStore();
   const { projects } = useProjectStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     projectId: '',
@@ -26,18 +29,41 @@ export default function BlocksPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addBlock({
-      projectId: formData.projectId,
-      blockCode: formData.blockCode,
-      blockName: formData.blockName,
-      phaseNo: formData.phaseNo ? Number(formData.phaseNo) : undefined,
-      status: formData.status,
-    });
+    if (editingId) {
+      updateBlock(editingId, {
+        projectId: formData.projectId,
+        blockCode: formData.blockCode,
+        blockName: formData.blockName,
+        phaseNo: formData.phaseNo ? Number(formData.phaseNo) : undefined,
+        status: formData.status,
+      });
+    } else {
+      addBlock({
+        projectId: formData.projectId,
+        blockCode: formData.blockCode,
+        blockName: formData.blockName,
+        phaseNo: formData.phaseNo ? Number(formData.phaseNo) : undefined,
+        status: formData.status,
+      });
+    }
     setIsModalOpen(false);
     resetForm();
   };
 
+  const handleEdit = (block: any) => {
+    setEditingId(block.id);
+    setFormData({
+      projectId: block.projectId,
+      blockCode: block.blockCode,
+      blockName: block.blockName,
+      phaseNo: block.phaseNo ? String(block.phaseNo) : '',
+      status: block.status,
+    });
+    setIsModalOpen(true);
+  };
+
   const resetForm = () => {
+    setEditingId(null);
     setFormData({
       projectId: '',
       blockCode: '',
@@ -58,7 +84,10 @@ export default function BlocksPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Blocks</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            resetForm();
+            setIsModalOpen(true);
+          }}
           className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           <Plus className="mr-2 h-4 w-4" />
@@ -105,13 +134,12 @@ export default function BlocksPage() {
                     )}
                   </div>
                   <span
-                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      block.status === 'Planned'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : block.status === 'OnSale'
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${block.status === 'Planned'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : block.status === 'OnSale'
                         ? 'bg-green-100 text-green-800'
                         : 'bg-gray-100 text-gray-800'
-                    }`}
+                      }`}
                   >
                     {block.status}
                   </span>
@@ -123,9 +151,19 @@ export default function BlocksPage() {
                   </p>
                 </div>
 
-                <div className="mt-6 flex justify-end border-t pt-4">
+                <div className="mt-6 flex justify-end border-t pt-4 space-x-3">
                   <button
-                    onClick={() => deleteBlock(block.id)}
+                    onClick={() => handleEdit(block)}
+                    className="text-sm text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(tCommon('deleteConfirm'))) {
+                        deleteBlock(block.id);
+                      }
+                    }}
                     className="text-sm text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                   >
                     Delete
@@ -141,7 +179,9 @@ export default function BlocksPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-gray-800">
-            <h2 className="text-xl font-bold mb-4 dark:text-gray-100">Create New Block</h2>
+            <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
+              {editingId ? 'Edit Block' : 'Create New Block'}
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project</label>
@@ -222,7 +262,7 @@ export default function BlocksPage() {
                   type="submit"
                   className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
                 >
-                  Create Block
+                  {editingId ? 'Update Block' : 'Create Block'}
                 </button>
               </div>
             </form>

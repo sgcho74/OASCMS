@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { LayoutDashboard, Building2, FileText, Ticket, Settings, CreditCard, Calendar, Users, Database } from 'lucide-react';
+import { LayoutDashboard, Building2, FileText, Ticket, Settings, CreditCard, Calendar, Users, Database, Map } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -19,6 +19,7 @@ export default function Sidebar() {
     { name: t('blocks'), href: `/${locale}/blocks`, icon: Building2, permission: 'projects:read' },
     { name: t('buildings'), href: `/${locale}/buildings`, icon: Building2, permission: 'projects:read' },
     { name: t('units'), href: `/${locale}/units`, icon: Building2, permission: 'units:read' },
+    { name: t('birdseye'), href: `/${locale}/birdseye`, icon: Map, permission: null },
     { name: t('leads'), href: `/${locale}/leads`, icon: Users, permission: 'leads:read' },
     { name: t('reservations'), href: `/${locale}/reservations`, icon: Calendar, permission: 'reservations:read' },
     { name: t('contracts'), href: `/${locale}/contracts`, icon: FileText, permission: 'contracts:read' },
