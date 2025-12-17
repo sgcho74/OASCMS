@@ -10,6 +10,17 @@
         "cancel": "إلغاء",
         "save": "حفظ",
         "status": "الحالة",
+        "birdseye": "نظرة عامة",
+        "blocks": "الكتل",
+        "buildings": "المباني",
+        "units": "الوحدات",
+        "leads": "العملاء المحتملين",
+        "reservations": "الحجوزات",
+        "payments": "المدفوعات",
+        "importExport": "استيراد/تصدير",
+        "users": "المستخدمين",
+        "migrate": "نقل البيانات",
+        "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا العنصر؟",
         "actions": "إجراءات"
     },
     "Dashboard": {
@@ -21,6 +32,7 @@
     },
     "Projects": {
         "title": "المشاريع",
+        "description": "Register and modify basic information for all sales projects, and manage the overall status of projects.",
         "newProject": "مشروع جديد",
         "noProjects": "لا توجد مشاريع",
         "getStarted": "ابدأ بإنشاء مشروع جديد.",
@@ -31,6 +43,7 @@
     },
     "Contracts": {
         "title": "العقود",
+        "description": "Manage sales contracts, draft agreements, handle down payments, and finalize the sales process.",
         "newContract": "عقد جديد",
         "noContracts": "لا توجد عقود",
         "unit": "الوحدة",
@@ -40,11 +53,48 @@
     },
     "Lottery": {
         "title": "نظام القرعة",
+        "description": "Manage the lottery process for applicants, select winners, and assign units.",
         "newRound": "جولة جديدة",
         "applicants": "المتقدمين",
         "winners": "الفائزين",
         "odds": "الاحتمالات",
         "drawWinners": "سحب الفائزين",
         "addApplicant": "إضافة متقدم"
+    },
+    "Units": {
+        "title": "مخزون الوحدات",
+        "description": "Register unit information for each building and manage details such as price, area, and status.",
+        "importCsv": "استيراد CSV",
+        "addUnit": "إضافة وحدة",
+        "unitsSelected": "{count} وحدات محددة",
+        "setStatus": "تعيين الحالة..."
+    },
+    "Payments": {
+        "title": "المدفوعات",
+        "description": "Process payments according to the contract schedule."
+    },
+    "Birdseye": {
+        "title": "نظرة عامة",
+        "description": "Visually inspect the entire complex."
+    },
+    "Leads": {
+        "title": "العملاء المحتملين",
+        "description": "Register and manage potential customer information."
+    },
+    "Reservations": {
+        "title": "الحجوزات",
+        "description": "Manage applications for specific units."
+    },
+    "Blocks": {
+        "title": "الكتل",
+        "description": "Manage block information within the project."
+    },
+    "Buildings": {
+        "title": "المباني",
+        "description": "Manage detailed information for buildings within each block."
+    },
+    "ImportExport": {
+        "title": "استيراد/تصدير",
+        "description": "Admin screen for bulk data registration or backup via CSV import/export."
     }
 }

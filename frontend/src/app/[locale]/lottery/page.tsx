@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useLotteryStore, LotteryRound, PriorityGroup, ApplicantProfile, UnitPreference, calculatePriorityScore } from '@/store/useLotteryStore';
 import { useProjectStore } from '@/store/useProjectStore';
 import { useUnitStore } from '@/store/useUnitStore';
@@ -12,6 +13,7 @@ import UnitPreferenceSelector from '@/components/UnitPreferenceSelector';
 import ScoreDisplay from '@/components/ScoreDisplay';
 
 export default function LotteryPage() {
+  const t = useTranslations('Lottery');
   const { rounds, addRound, addApplicant, drawWinners } = useLotteryStore();
   const { projects } = useProjectStore();
   const { units } = useUnitStore();
@@ -111,7 +113,12 @@ export default function LotteryPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Lottery System</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {t('description')}
+          </p>
+        </div>
         <button
           onClick={() => setIsRoundModalOpen(true)}
           className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"

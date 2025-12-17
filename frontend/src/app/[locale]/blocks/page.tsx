@@ -7,6 +7,7 @@ import { Plus, Square } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function BlocksPage() {
+  const t = useTranslations('Blocks');
   const tCommon = useTranslations('Common');
   const { blocks, addBlock, deleteBlock, updateBlock } = useBlockStore();
   const { projects } = useProjectStore();
@@ -82,7 +83,12 @@ export default function BlocksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Blocks</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {t('description')}
+          </p>
+        </div>
         <button
           onClick={() => {
             resetForm();

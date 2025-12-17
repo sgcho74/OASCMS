@@ -8,6 +8,7 @@ import { Plus, Building } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function BuildingsPage() {
+  const t = useTranslations('Buildings');
   const tCommon = useTranslations('Common');
   const { buildings, addBuilding, deleteBuilding, updateBuilding } = useBuildingStore();
   const { blocks } = useBlockStore();
@@ -95,7 +96,12 @@ export default function BuildingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Buildings</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {t('description')}
+          </p>
+        </div>
         <button
           onClick={() => {
             resetForm();

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { usePaymentStore, PaymentMethod } from '@/store/usePaymentStore';
 import { useContractStore } from '@/store/useContractStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -11,6 +12,7 @@ export default function PaymentsPage() {
     const { payments, addPayment } = usePaymentStore();
     const { contracts, updatePaymentStatus } = useContractStore();
     const { currentUser } = useAuthStore();
+    const t = useTranslations('Payments');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Search & Filter State
@@ -39,7 +41,7 @@ export default function PaymentsPage() {
     // Filtered Payments
     const filteredPayments = payments.filter(payment => {
         const contract = contracts.find(c => c.id === payment.contractId);
-        
+
         // RBAC Filter: Customers can only see their own payments
         if (currentUser?.role === 'customer') {
             if (contract?.customerName !== currentUser.fullName) {
@@ -49,7 +51,7 @@ export default function PaymentsPage() {
 
         // Text Search (Payer, Buyer, Unit)
         const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
             payment.payerName.toLowerCase().includes(searchLower) ||
             contract?.customerName.toLowerCase().includes(searchLower) ||
             contract?.unitNumber.toLowerCase().includes(searchLower) ||
@@ -109,7 +111,12 @@ export default function PaymentsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payment Records</h1>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        {t('description')}
+                    </p>
+                </div>
                 <PermissionGate permission="payments:write">
                     <button
                         onClick={() => setIsModalOpen(true)}
@@ -255,11 +262,11 @@ export default function PaymentsPage() {
                                     onChange={(e) => {
                                         const newContractId = e.target.value;
                                         const contract = contracts.find(c => c.id === newContractId);
-                                        setFormData({ 
-                                            ...formData, 
-                                            contractId: newContractId, 
+                                        setFormData({
+                                            ...formData,
+                                            contractId: newContractId,
                                             scheduleId: '',
-                                            payerName: contract ? contract.customerName : formData.payerName 
+                                            payerName: contract ? contract.customerName : formData.payerName
                                         });
                                     }}
                                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -283,7 +290,7 @@ export default function PaymentsPage() {
                                         onChange={(e) => {
                                             const scheduleId = e.target.value;
                                             const schedule = selectedContract.paymentSchedules?.find(s => s.id === scheduleId);
-                                            
+
                                             // Calculate outstanding for auto-fill
                                             let outstandingAmount = 0;
                                             if (schedule) {
@@ -317,7 +324,7 @@ export default function PaymentsPage() {
                                                     return s.stageType === 'Deposit' && s.installmentNo === 1;
                                                 })
                                                 .reduce((sum, p) => sum + p.amount, 0);
-                                            
+
                                             const outstanding = Math.max(0, s.amount - paidForSchedule);
                                             const isFullyPaid = outstanding === 0;
 

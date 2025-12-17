@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useReservationStore } from '@/store/useReservationStore';
 import ReservationStats from '@/components/reservations/ReservationStats';
 import ReservationList from '@/components/reservations/ReservationList';
@@ -12,6 +13,7 @@ import { useAuthStore } from '@/store/useAuthStore'; // Add import
 export default function ReservationsPage() {
     const { reservations } = useReservationStore();
     const { currentUser } = useAuthStore(); // Get current user
+    const t = useTranslations('Reservations');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isHydrated, setIsHydrated] = useState(false);
 
@@ -32,7 +34,12 @@ export default function ReservationsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Reservations</h1>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        {t('description')}
+                    </p>
+                </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"

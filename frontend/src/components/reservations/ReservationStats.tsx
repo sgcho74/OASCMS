@@ -27,11 +27,11 @@ export default function ReservationStats() {
                         <div className={`absolute rounded-md p-3 ${item.bg}`}>
                             <item.icon className={`h-6 w-6 ${item.color}`} aria-hidden="true" />
                         </div>
-                        <p className="ml-16 truncate text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p className="ms-16 truncate text-sm font-medium text-gray-500 dark:text-gray-400">
                             {item.name}
                         </p>
                     </dt>
-                    <dd className="ml-16 flex items-baseline pb-1 sm:pb-7">
+                    <dd className="ms-16 flex items-baseline pb-1 sm:pb-7">
                         <p className="text-2xl font-semibold text-gray-900 dark:text-white">{item.value}</p>
                     </dd>
                 </div>

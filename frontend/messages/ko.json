@@ -27,8 +27,27 @@
         "cancel": "취소",
         "save": "저장"
     },
+    "Dashboard": {
+        "totalProjects": "총 프로젝트",
+        "activeContracts": "진행 중인 계약",
+        "totalRevenue": "총 매출",
+        "lotteryApplicants": "청약 신청자",
+        "activeRound": "진행 중인 회차"
+    },
+    "Projects": {
+        "title": "프로젝트 관리",
+        "description": "전체 분양 프로젝트의 기본 정보를 등록하고 수정하며, 프로젝트 전반의 현황을 관리하는 화면입니다.",
+        "newProject": "새 프로젝트",
+        "noProjects": "프로젝트가 없습니다",
+        "getStarted": "새 프로젝트를 생성하여 시작하세요.",
+        "name": "프로젝트명",
+        "location": "위치",
+        "totalUnits": "총 세대수",
+        "status": "상태"
+    },
     "Contracts": {
         "title": "계약 관리",
+        "description": "분양 계약을 체결하고, 계약서 작성 및 계약금 납입 정보를 관리하며 최종적으로 분양을 확정하는 화면입니다.",
         "newContract": "새 계약 작성",
         "noContracts": "계약이 없습니다",
         "unit": "호수",
@@ -38,6 +57,7 @@
     },
     "Lottery": {
         "title": "추첨",
+        "description": "청약 신청자에 대한 추첨을 진행하고, 당첨자를 선정하여 동/호수를 배정하는 과정을 관리하는 화면입니다.",
         "newRound": "새 회차 생성",
         "applicants": "신청자",
         "winners": "당첨자",
@@ -47,9 +67,38 @@
     },
     "Units": {
         "title": "세대 관리",
+        "description": "각 건물의 개별 세대(Unit) 정보를 등록하고, 분양가, 면적, 상태(분양 가능, 예약, 계약 등)를 상세하게 관리하는 화면입니다.",
         "importCsv": "CSV 가져오기",
         "addUnit": "세대 추가",
         "unitsSelected": "{count} 세대 선택됨",
         "setStatus": "상태 변경..."
+    },
+    "Payments": {
+        "title": "수납 관리",
+        "description": "계약 시 생성된 대금납부 일정에 따라 납부처리하는 화면이며, Buyer 가 납부영수증을 제시하면, 관리자가 입력하여 납부 정보를 저장 및 조회합니다."
+    },
+    "Birdseye": {
+        "title": "조감도",
+        "description": "단지 전체의 조감도를 시각적으로 확인하고, 각 동/세대의 분양 상태를 직관적으로 파악할 수 있는 화면입니다."
+    },
+    "Leads": {
+        "title": "고객 리드",
+        "description": "잠재 고객(Lead)의 정보를 등록하고 관리하며, 상담 이력 및 상태 변경을 통해 실제 계약으로 이어지도록 관리하는 화면입니다."
+    },
+    "Reservations": {
+        "title": "청약/예약",
+        "description": "관심 고객이 특정 세대에 대해 청약(예약)을 신청한 내역을 관리하고, 정식 계약으로 전환되기 전 단계를 관리하는 화면입니다."
+    },
+    "Blocks": {
+        "title": "동 관리",
+        "description": "프로젝트 내의 각 동(Block) 정보를 등록하고 관리하는 화면입니다."
+    },
+    "Buildings": {
+        "title": "건물 관리",
+        "description": "각 동에 속한 건물(라인) 정보를 세부적으로 설정하고 관리하는 화면입니다."
+    },
+    "ImportExport": {
+        "title": "데이터 가져오기/내보내기",
+        "description": "데이터를 일괄 등록하거나 백업하기 위해 CSV 등의 파일로 가져오기/내보내기를 수행하는 관리자 전용 화면입니다."
     }
 }

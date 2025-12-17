@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useLeadStore, LeadStatus } from '@/store/useLeadStore';
 import LeadStats from '@/components/leads/LeadStats';
 import LeadList from '@/components/leads/LeadList';
@@ -11,6 +12,7 @@ import { Plus } from 'lucide-react';
 
 export default function LeadsPage() {
     const { leads } = useLeadStore();
+    const t = useTranslations('Leads');
     const [isHydrated, setIsHydrated] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -29,7 +31,12 @@ export default function LeadsPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">CRM & Leads</h1>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        {t('description')}
+                    </p>
+                </div>
                 <PermissionGate permission="leads:write">
                     <button
                         onClick={() => setIsCreateModalOpen(true)}

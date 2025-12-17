@@ -17,7 +17,7 @@ export interface Reservation {
 
 interface ReservationState {
     reservations: Reservation[];
-    addReservation: (reservation: Omit<Reservation, 'id'>) => void;
+    addReservation: (reservation: Omit<Reservation, 'id'> & { id?: string }) => void;
     updateReservation: (id: string, updates: Partial<Reservation>) => void;
     cancelReservation: (id: string) => void;
     convertReservation: (id: string) => void; // Mark as Sold/Contracted
@@ -31,7 +31,7 @@ export const useReservationStore = create<ReservationState>()(
                 set((state) => ({
                     reservations: [
                         ...state.reservations,
-                        { ...reservation, id: crypto.randomUUID() },
+                        { ...reservation, id: reservation.id || crypto.randomUUID() },
                     ],
                 })),
             updateReservation: (id, updates) =>

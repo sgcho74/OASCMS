@@ -1,5 +1,4 @@
-'use client';
-
+import { format } from 'date-fns';
 import { PaymentSchedule } from '@/store/useContractStore';
 import { usePaymentStore } from '@/store/usePaymentStore';
 import { useContractStore } from '@/store/useContractStore';
@@ -12,11 +11,37 @@ interface Props {
 }
 
 export default function PaymentScheduleTable({ contractId, schedules }: Props) {
-  const { getPaymentsBySchedule, getPaymentsByContract } = usePaymentStore();
+  const { getPaymentsBySchedule, getPaymentsByContract, addPayment } = usePaymentStore();
   const { updatePaymentStatus } = useContractStore();
 
-  const handleMarkAsPaid = (paymentId: string) => {
-    updatePaymentStatus(contractId, paymentId, 'paid');
+  const handleMarkAsPaid = (scheduleId: string) => {
+    const schedule = schedules.find(s => s.id === scheduleId);
+    if (!schedule) return;
+
+    // Calculate outstanding
+    const contractPayments = getPaymentsByContract(contractId);
+    const relevantPayments = contractPayments.filter(p => {
+      if (p.scheduleId) return p.scheduleId === schedule.id;
+      return schedule.stageType === 'Deposit' && schedule.installmentNo === 1;
+    });
+    const paidAmount = relevantPayments.reduce((sum, p) => sum + p.amount, 0);
+    const outstanding = Math.max(0, schedule.amount - paidAmount);
+
+    if (outstanding <= 0) return;
+
+    if (confirm(`Mark ${schedule.name} as Paid ($${outstanding.toLocaleString()})?`)) {
+      addPayment({
+        contractId,
+        scheduleId: schedule.id,
+        amount: outstanding, // Only pay the outstanding amount
+        currency: 'USD',
+        paymentDate: new Date().toISOString(),
+        method: 'bank_transfer',
+        payerName: 'System Admin',
+      });
+      // Legacy status update
+      updatePaymentStatus(contractId, scheduleId, 'paid');
+    }
   };
 
   // Group by stage
@@ -35,8 +60,8 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
           // Actually, let's use the same logic to be accurate.
           const contractPayments = getPaymentsByContract(contractId);
           const relevantPayments = contractPayments.filter(p => {
-             if (p.scheduleId) return p.scheduleId === s.id;
-             return s.stageType === 'Deposit' && s.installmentNo === 1;
+            if (p.scheduleId) return p.scheduleId === s.id;
+            return s.stageType === 'Deposit' && s.installmentNo === 1;
           });
           return sum + relevantPayments.reduce((pSum, p) => pSum + p.amount, 0);
         }, 0);
@@ -65,7 +90,10 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                     PAID (Plan)
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    PAID (Actual)
+                    Paid
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    Date Paid
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     Outstanding
@@ -88,11 +116,47 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                     // If no scheduleId, attribute to "Deposit 1" (선수금 1차)
                     return schedule.stageType === 'Deposit' && schedule.installmentNo === 1;
                   });
-                  
+
                   const paidAmount = relevantPayments.reduce((sum, p) => sum + p.amount, 0);
                   const outstanding = Math.max(0, schedule.amount - paidAmount);
                   const isFullyPaid = paidAmount >= schedule.amount;
                   const isPaid = schedule.status === 'paid' || isFullyPaid;
+                  const isPartiallyPaid = paidAmount > 0 && !isFullyPaid;
+
+                  // Get latest payment date
+                  const lastPayment = relevantPayments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+                  const paymentDateDisplay = lastPayment ? format(new Date(lastPayment.createdAt), 'yyyy-MM-dd HH:mm:ss') : '-';
+
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const due = new Date(schedule.dueDate);
+                  due.setHours(0, 0, 0, 0);
+
+                  const isPastDue = due < today;
+                  const isDueToday = due.getTime() === today.getTime();
+                  const isFuture = due > today;
+
+                  let displayStatus = 'PENDING';
+                  let statusColor = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+
+                  if (isPaid) {
+                    displayStatus = 'PAID';
+                    statusColor = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                  } else if (isPartiallyPaid) {
+                    displayStatus = 'PARTIAL';
+                    statusColor = 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+                  } else if (schedule.status === 'overdue' || isPastDue) {
+                    displayStatus = 'OVERDUE';
+                    statusColor = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                  } else if (isDueToday) {
+                    displayStatus = 'DUE TODAY';
+                    statusColor = 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+                  } else if (isFuture) {
+                    displayStatus = 'SCHEDULED';
+                    statusColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+                  }
+
+
 
                   return (
                     <tr key={schedule.id} className={isPaid ? 'bg-green-50 dark:bg-green-900/10' : ''}>
@@ -110,6 +174,9 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                           ${paidAmount.toLocaleString()}
                         </span>
                       </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 font-mono">
+                        {paymentDateDisplay}
+                      </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
                         <span className={outstanding > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-gray-400'}>
                           ${outstanding.toLocaleString()}
@@ -117,25 +184,25 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm">
                         <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${isPaid
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : schedule.status === 'overdue'
-                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            }`}
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusColor}`}
                         >
-                          {isPaid ? 'PAID' : schedule.status.toUpperCase()}
+                          {displayStatus}
                         </span>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm">
+                      <td className="whitespace-nowrap px-4 py-3 text-sm flex items-center gap-2">
+                        {isPartiallyPaid && (
+                          <span className="text-xs text-orange-600 dark:text-orange-400 font-medium whitespace-nowrap">
+                            Partial Paid
+                          </span>
+                        )}
                         {!isPaid && (
                           <PermissionGate permission="contracts:write">
                             <button
                               onClick={() => handleMarkAsPaid(schedule.id)}
-                              className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+                              className="flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 whitespace-nowrap"
                             >
                               <CheckCircle className="h-3 w-3" />
-                              Mark as Paid
+                              {isPartiallyPaid ? 'Pay Remainder' : 'Mark as Paid'}
                             </button>
                           </PermissionGate>
                         )}

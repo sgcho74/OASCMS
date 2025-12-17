@@ -30,6 +30,8 @@ export interface Contract {
   customerName: string;
   totalAmount: number;
   status: ContractStatus;
+  reservationId?: string; // Link to source Reservation
+  applicantId?: string; // Link to source Lottery Applicant
   payments: Payment[]; // Legacy - keeping for compatibility
   paymentSchedules: PaymentSchedule[]; // New multi-stage schedules
   createdAt: string;

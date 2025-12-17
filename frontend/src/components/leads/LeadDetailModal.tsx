@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lead, useLeadStore, LeadStatus } from '@/store/useLeadStore';
+import { useReservationStore, Reservation } from '@/store/useReservationStore';
+import CreateReservationModal from '@/components/reservations/CreateReservationModal';
 import { X, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -11,8 +13,14 @@ interface LeadDetailModalProps {
 
 export default function LeadDetailModal({ isOpen, leadId, onClose }: LeadDetailModalProps) {
     const { leads, updateLead } = useLeadStore();
+    const { reservations } = useReservationStore();
     const [lead, setLead] = useState<Lead | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+
+    // Conversion State
+    const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+    const [potentialMatches, setPotentialMatches] = useState<Reservation[]>([]);
+    const [showMatchSelection, setShowMatchSelection] = useState(false);
 
     useEffect(() => {
         if (leadId) {
@@ -24,10 +32,55 @@ export default function LeadDetailModal({ isOpen, leadId, onClose }: LeadDetailM
     if (!isOpen || !lead) return null;
 
     const handleStatusChange = (newStatus: LeadStatus) => {
+        if (newStatus === 'Converted') {
+            // Check for matches
+            const matches = reservations.filter(r =>
+                (r.customerName.toLowerCase() === lead.name.toLowerCase()) ||
+                (r.customerPhone === lead.phone)
+            );
+
+            if (matches.length > 0) {
+                setPotentialMatches(matches);
+                setShowMatchSelection(true);
+            } else {
+                // No matches, prompt to create new
+                if (confirm('No existing reservation found. Create a new reservation for this lead?')) {
+                    setIsReservationModalOpen(true);
+                } else {
+                    // User cancelled creation, but what about the status change?
+                    // Let's allow simple status change if they denied reservation creation? 
+                    // Or just revert. Let's revert for safety or just do nothing.
+                }
+            }
+        } else {
+            updateLead(lead.id, {
+                status: newStatus,
+                lastContactDate: new Date().toISOString()
+            });
+        }
+    };
+
+    const handleLinkReservation = (reservationId: string) => {
         updateLead(lead.id, {
-            status: newStatus,
+            status: 'Converted',
+            convertedToCustomerId: reservationId,
             lastContactDate: new Date().toISOString()
         });
+        setShowMatchSelection(false);
+    };
+
+    const handleCreateNewReservation = () => {
+        setShowMatchSelection(false);
+        setIsReservationModalOpen(true);
+    };
+
+    const handleReservationCreated = (reservationId: string) => {
+        updateLead(lead.id, {
+            status: 'Converted',
+            convertedToCustomerId: reservationId, // Linking to Reservation ID
+            lastContactDate: new Date().toISOString()
+        });
+        alert("Reservation created and lead converted successfully!");
     };
 
     const handleMarkLost = () => {
@@ -149,6 +202,54 @@ export default function LeadDetailModal({ isOpen, leadId, onClose }: LeadDetailM
                     </div>
                 </div>
             </div>
+            {/* Match Selection Modal (Overlay on top of Detail Modal) */}
+            {showMatchSelection && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 rounded-lg">
+                    <div className="bg-white p-6 rounded-lg max-w-md w-full dark:bg-gray-800">
+                        <h3 className="text-lg font-bold mb-4 dark:text-white">Link to Reservation</h3>
+                        <p className="text-sm text-gray-600 mb-4 dark:text-gray-300">
+                            Found matched reservations. Select one to link, or create a new one.
+                        </p>
+                        <div className="max-h-60 overflow-y-auto space-y-2 mb-4">
+                            {potentialMatches.map(r => (
+                                <button
+                                    key={r.id}
+                                    onClick={() => handleLinkReservation(r.id)}
+                                    className="w-full text-left p-3 border rounded hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                                >
+                                    <div className="font-bold text-sm dark:text-white">{r.customerName}</div>
+                                    <div className="text-xs text-gray-500">{r.customerPhone}</div>
+                                    <div className="text-xs text-indigo-600 mt-1">Unit: {r.unitId} (Status: {r.status})</div>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between">
+                            <button
+                                onClick={() => setShowMatchSelection(false)}
+                                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreateNewReservation}
+                                className="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700"
+                            >
+                                Create New Reservation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <CreateReservationModal
+                isOpen={isReservationModalOpen}
+                onClose={() => setIsReservationModalOpen(false)}
+                initialData={{
+                    name: lead.name,
+                    phone: lead.phone
+                }}
+                onSuccess={handleReservationCreated}
+            />
         </div>
     );
 }

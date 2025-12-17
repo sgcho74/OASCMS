@@ -27,8 +27,27 @@
         "cancel": "Cancel",
         "save": "Save"
     },
+    "Dashboard": {
+        "totalProjects": "Total Projects",
+        "activeContracts": "Active Contracts",
+        "totalRevenue": "Total Revenue",
+        "lotteryApplicants": "Lottery Applicants",
+        "activeRound": "Active Round"
+    },
+    "Projects": {
+        "title": "Projects",
+        "description": "Register and modify basic information for all sales projects, and manage the overall status of projects.",
+        "newProject": "New Project",
+        "noProjects": "No projects",
+        "getStarted": "Get started by creating a new project.",
+        "name": "Project Name",
+        "location": "Location",
+        "totalUnits": "Total Units",
+        "status": "Status"
+    },
     "Contracts": {
         "title": "Contracts",
+        "description": "Manage sales contracts, draft agreements, handle down payments, and finalize the sales process.",
         "newContract": "New Contract",
         "noContracts": "No contracts",
         "unit": "Unit",
@@ -38,6 +57,7 @@
     },
     "Lottery": {
         "title": "Lottery System",
+        "description": "Manage the lottery process for applicants, select winners, and assign units.",
         "newRound": "New Round",
         "applicants": "Applicants",
         "winners": "Winners",
@@ -47,9 +67,38 @@
     },
     "Units": {
         "title": "Unit Inventory",
+        "description": "Register unit information for each building and manage details such as price, area, and status (available, reserved, contracted).",
         "importCsv": "Import CSV",
         "addUnit": "Add Unit",
         "unitsSelected": "{count} units selected",
         "setStatus": "Set Status..."
+    },
+    "Payments": {
+        "title": "Payments",
+        "description": "Process payments according to the contract schedule. Managers record and view payment information upon receipt retrieval from buyers."
+    },
+    "Birdseye": {
+        "title": "Bird's Eye View",
+        "description": "Visually inspect the entire complex and intuitively grasp the sales status of each block and unit."
+    },
+    "Leads": {
+        "title": "Leads",
+        "description": "Register and manage potential customer information, track consultation history, and manage status changes to lead to actual contracts."
+    },
+    "Reservations": {
+        "title": "Reservations",
+        "description": "Manage applications for specific units by interested customers and handle pre-contract stages."
+    },
+    "Blocks": {
+        "title": "Blocks",
+        "description": "Manage block information within the project."
+    },
+    "Buildings": {
+        "title": "Buildings",
+        "description": "Manage detailed information for buildings within each block."
+    },
+    "ImportExport": {
+        "title": "Import/Export",
+        "description": "Admin screen for bulk data registration or backup via CSV import/export."
     }
 }

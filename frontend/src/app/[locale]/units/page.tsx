@@ -72,7 +72,12 @@ export default function UnitsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('title')}</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {t('description')}
+          </p>
+        </div>
         <div className="flex space-x-3">
           <button
             onClick={() => setIsUploadModalOpen(true)}

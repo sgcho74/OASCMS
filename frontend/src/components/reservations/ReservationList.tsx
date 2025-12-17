@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Reservation, useReservationStore } from '@/store/useReservationStore';
 import { useUnitStore } from '@/store/useUnitStore';
 import { format } from 'date-fns';
-import { Check, X, ArrowRight, Eye } from 'lucide-react';
+import { Check, X, Eye } from 'lucide-react';
 import CustomerDetailsModal from './CustomerDetailsModal';
+import CreateContractModal from '@/components/contracts/CreateContractModal';
 
 interface ReservationListProps {
     reservations: Reservation[];
@@ -13,6 +14,10 @@ export default function ReservationList({ reservations }: ReservationListProps) 
     const { units, setUnitStatus } = useUnitStore();
     const { cancelReservation, convertReservation } = useReservationStore();
     const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+
+    // Contract Conversion
+    const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+    const [contractInitialData, setContractInitialData] = useState<any>(null);
 
     const getUnitDetails = (unitId: string) => {
         const unit = units.find((u) => u.id === unitId);
@@ -26,11 +31,33 @@ export default function ReservationList({ reservations }: ReservationListProps) 
         }
     };
 
-    const handleConvert = (id: string, unitId: string) => {
-        if (confirm('Mark this reservation as Sold/Contracted?')) {
-            convertReservation(id);
-            setUnitStatus([unitId], 'Sold');
+    const handleConvert = (reservation: Reservation) => {
+        if (confirm('Proceed to create a contract for this reservation?')) {
+            const unit = units.find(u => u.id === reservation.unitId);
+            setContractInitialData({
+                projectId: unit?.projectId,
+                blockId: unit?.blockId,
+                buildingId: unit?.buildingId,
+                unitNumber: unit?.unitNumber,
+                customerName: reservation.customerName,
+                reservationId: reservation.id,
+                applicantId: reservation.applicantId,
+                totalAmount: unit?.basePrice // Pre-fill price
+            });
+            setIsContractModalOpen(true);
         }
+    };
+
+    const handleContractCreated = () => {
+        if (contractInitialData?.reservationId) {
+            convertReservation(contractInitialData.reservationId);
+            // Unit status update to Sold/ContractPending is handled inside CreateContractModal or via side-effect.
+            // But we can double ensure here if needed, or rely on the store update in modal.
+            // The modal updates 'ContractPending'.
+            // convertReservation updates status to 'Converted'.
+        }
+        setIsContractModalOpen(false);
+        setContractInitialData(null);
     };
 
     const getStatusColor = (status: string) => {
@@ -89,7 +116,7 @@ export default function ReservationList({ reservations }: ReservationListProps) 
                                         {res.status === 'Active' && (
                                             <>
                                                 <button
-                                                    onClick={() => handleConvert(res.id, res.unitId)}
+                                                    onClick={() => handleConvert(res)}
                                                     className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                                                     title="Convert to Sale"
                                                 >

@@ -15,16 +15,19 @@ export default function Sidebar() {
 
   const allNavigation = [
     { name: t('dashboard'), href: `/${locale}`, icon: LayoutDashboard, permission: null },
+    // Sales Flow
+    { name: t('birdseye'), href: `/${locale}/birdseye`, icon: Map, permission: null },
+    { name: t('leads'), href: `/${locale}/leads`, icon: Users, permission: 'leads:read' },
+    { name: t('reservations'), href: `/${locale}/reservations`, icon: Calendar, permission: 'reservations:read' },
+    { name: t('lottery'), href: `/${locale}/lottery`, icon: Ticket, permission: 'lottery:read' },
+    { name: t('contracts'), href: `/${locale}/contracts`, icon: FileText, permission: 'contracts:read' },
+    { name: t('payments'), href: `/${locale}/payments`, icon: CreditCard, permission: 'payments:read' },
+    // Inventory Management
     { name: t('projects'), href: `/${locale}/projects`, icon: Building2, permission: 'projects:read' },
     { name: t('blocks'), href: `/${locale}/blocks`, icon: Building2, permission: 'projects:read' },
     { name: t('buildings'), href: `/${locale}/buildings`, icon: Building2, permission: 'projects:read' },
     { name: t('units'), href: `/${locale}/units`, icon: Building2, permission: 'units:read' },
-    { name: t('birdseye'), href: `/${locale}/birdseye`, icon: Map, permission: null },
-    { name: t('leads'), href: `/${locale}/leads`, icon: Users, permission: 'leads:read' },
-    { name: t('reservations'), href: `/${locale}/reservations`, icon: Calendar, permission: 'reservations:read' },
-    { name: t('contracts'), href: `/${locale}/contracts`, icon: FileText, permission: 'contracts:read' },
-    { name: t('payments'), href: `/${locale}/payments`, icon: CreditCard, permission: 'payments:read' },
-    { name: t('lottery'), href: `/${locale}/lottery`, icon: Ticket, permission: 'lottery:read' },
+    // Admin
     { name: t('importExport'), href: `/${locale}/import-export`, icon: Database, permission: 'export:data' },
     { name: t('users'), href: `/${locale}/users`, icon: Users, permission: 'users:read' },
     { name: `🔧 ${t('migrate')}`, href: `/${locale}/migrate`, icon: Settings, permission: 'units:write' },
@@ -75,6 +78,9 @@ export default function Sidebar() {
           <Settings className="mr-3 h-5 w-5" />
           Reset Data
         </button>
+        <div className="mt-4 text-center text-xs text-gray-600">
+          Build v0.1.0
+        </div>
       </div>
     </div>
   );

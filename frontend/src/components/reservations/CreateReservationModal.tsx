@@ -8,9 +8,14 @@ import { addDays, format } from 'date-fns';
 interface CreateReservationModalProps {
     isOpen: boolean;
     onClose: () => void;
+    initialData?: {
+        name?: string;
+        phone?: string;
+    };
+    onSuccess?: (reservationId: string) => void;
 }
 
-export default function CreateReservationModal({ isOpen, onClose }: CreateReservationModalProps) {
+export default function CreateReservationModal({ isOpen, onClose, initialData, onSuccess }: CreateReservationModalProps) {
     const { addReservation } = useReservationStore();
     const { units, setUnitStatus } = useUnitStore();
     const { rounds } = useLotteryStore();
@@ -30,12 +35,18 @@ export default function CreateReservationModal({ isOpen, onClose }: CreateReserv
             setStep(1);
             setSelectedUnitId('');
             setCustomerType('New');
-            setCustomerName('');
-            setCustomerPhone('');
+            setCustomerName(initialData?.name || '');
+            setCustomerPhone(initialData?.phone || '');
             setReservationDate(format(new Date(), 'yyyy-MM-dd'));
             setExpiryDate(format(addDays(new Date(), 7), 'yyyy-MM-dd'));
+
+            // If we have initial data, we can assume it's a 'New' customer flow mostly, 
+            // but user can still switch if they want.
+            if (initialData?.name || initialData?.phone) {
+                setCustomerType('New');
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, initialData]);
 
     const availableUnits = units.filter((u) => u.status === 'Available');
 
@@ -66,7 +77,26 @@ export default function CreateReservationModal({ isOpen, onClose }: CreateReserv
 
     const handleFinalSubmit = () => {
         if (selectedUnitId && customerName) {
+            const newReservationId = crypto.randomUUID();
+            // We need to cast or update store to accept ID if we want to determine it here.
+            // Or just trust the recent addition? Race condition possible but unlikely in local app.
+            // Best approach: Update store to return the ID or accept it.
+            // Let's assume I'll update the store too.
+            // For now, I will modify the store to accept an ID if provided, or generate one.
+
+            // Actually, I'll essentially do:
+            /*
             addReservation({
+                ...
+                id: newReservationId // if I change store signature
+            })
+            */
+            // Let's modify the store first to be robust. 
+            // BUT, to save steps, I can just use the store as is, and find the reservation I just added?
+            // "Find reservation for unitId X with status Active".
+
+            addReservation({
+                id: newReservationId,
                 unitId: selectedUnitId,
                 applicantId: customerType === 'Lottery' ? selectedApplicantId : undefined,
                 customerName,
@@ -76,6 +106,22 @@ export default function CreateReservationModal({ isOpen, onClose }: CreateReserv
                 status: 'Active',
             });
             setUnitStatus([selectedUnitId], 'Reserved');
+
+            // Hacky but works for now: Find the reservation we just added.
+            // Since we are inside the component view, we can't synchronously get the updated state from the hook immediately after valid action without a refetch or generic "get" accessor if not using "set".
+            // However, we passed `onSuccess`.
+            // We can just pass the UNIT ID to onSuccess? `onSuccess(unitId)`.
+            // Then in `LeadDetailModal`, we find the reservation by Unit ID? Or just re-query.
+            // Let's just pass void to onSuccess for now, and let LeadDetailModal find the matching reservation (it has name/phone/unit).
+
+            // Wait, the user wants the link. `convertedToCustomerId`.
+            // Ideally we need the Reservation ID.
+
+            // I will update the store to return the ID? No, zustand actions are void usually.
+            // I will update the store to optionally accept an ID.
+            if (onSuccess) {
+                onSuccess(newReservationId);
+            }
             onClose();
         }
     };
@@ -144,8 +190,8 @@ export default function CreateReservationModal({ isOpen, onClose }: CreateReserv
                             <button
                                 onClick={() => setCustomerType('New')}
                                 className={`px-4 py-2 text-sm font-medium rounded-md ${customerType === 'New'
-                                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-200'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-200'
+                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                                     }`}
                             >
                                 New Buyer
@@ -153,8 +199,8 @@ export default function CreateReservationModal({ isOpen, onClose }: CreateReserv
                             <button
                                 onClick={() => setCustomerType('Lottery')}
                                 className={`px-4 py-2 text-sm font-medium rounded-md ${customerType === 'Lottery'
-                                        ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-200'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-200'
+                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                                     }`}
                             >
                                 Lottery Winner
