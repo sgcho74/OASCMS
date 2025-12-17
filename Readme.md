@@ -6,8 +6,13 @@ OASCMS is a comprehensive web-based application designed for managing real estat
 
 ### 🏢 Unit Management
 -   **Visual Dashboard**: Interactive charts showing inventory distribution by type and status.
+-   **Bird's Eye View**: Interactive 2D map for visualizing block locations and details.
 -   **Status Tracking**: Real-time tracking of unit status (Available, Reserved, ContractPending, Sold).
 -   **Bulk Import/Export**: CSV support for mass updating unit data.
+
+### 🌍 Internationalization & UX
+-   **Multi-language Support**: Full support for English, Korean (한국어), and Arabic (العربية).
+-   **Dark Mode**: Native dark mode support for all interfaces.
 
 ### 👥 Lead & Reservation Management
 -   **Lead Tracking**: Manage potential buyers with source tracking and status updates.
@@ -66,3 +71,8 @@ OASCMS is a comprehensive web-based application designed for managing real estat
 ## License
 
 Proprietary software. All rights reserved.
+
+---
+<div align="center">
+  <p>Powered By <strong>Antigravity</strong></p>
+</div>
