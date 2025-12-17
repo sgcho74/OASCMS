@@ -40,6 +40,8 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
     const [unitNumber, setUnitNumber] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [totalAmount, setTotalAmount] = useState('');
+    const [reservationId, setReservationId] = useState<string | undefined>(undefined);
+    const [applicantId, setApplicantId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (isOpen && initialData) {
@@ -48,6 +50,8 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
             setBuildingId(initialData.buildingId || '');
             setUnitNumber(initialData.unitNumber || '');
             setCustomerName(initialData.customerName || '');
+            setReservationId(initialData.reservationId);
+            setApplicantId(initialData.applicantId);
             if (initialData.totalAmount) {
                 setTotalAmount(initialData.totalAmount.toString());
             }
@@ -64,6 +68,8 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
         setUnitNumber('');
         setCustomerName('');
         setTotalAmount('');
+        setReservationId(undefined);
+        setApplicantId(undefined);
         setStep(1);
         setAgreedToTerms(false);
     };
@@ -110,11 +116,17 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
         // 1. Must match project/block/building filters.
         // 2. Status must be Available OR (Reserved AND matches initialData.unitNumber)
 
+        // Fix: Ensure we match exact unit number if provided via initialData (Reservation flow)
+        if (initialData?.unitNumber && u.unitNumber === initialData.unitNumber) {
+            // We still need to verify project match to be safe, but usually unitNumber is unique per project or globally? 
+            // Assuming unitNumber is unique per Project.
+            if (projectId && u.projectId !== projectId) return false;
+            return true;
+        }
+
         if (projectId && u.projectId !== projectId) return false;
         if (blockId && u.blockId !== blockId) return false;
         if (buildingId && u.buildingId !== buildingId) return false;
-
-        if (initialData?.unitNumber && u.unitNumber === initialData.unitNumber) return true;
 
         const isContracted = contracts.some(c =>
             c.projectId === projectId &&
@@ -129,14 +141,24 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        console.info('Creating contract with:', {
+            projectId,
+            unitNumber,
+            customerName,
+            totalAmount: Number(totalAmount),
+            reservationId,
+            applicantId
+        });
+
         addContract({
             projectId,
             unitNumber,
             customerName,
             totalAmount: Number(totalAmount),
             status: 'draft',
-            reservationId: initialData?.reservationId,
-            applicantId: initialData?.applicantId
+            reservationId,
+            applicantId
         });
 
         // Update unit status to ContractPending (or Sold)
@@ -247,7 +269,7 @@ export default function CreateContractModal({ isOpen, onClose, initialData, onSu
                                         <option value="">Select Unit</option>
                                         {selectableUnits.map((u) => (
                                             <option key={u.id} value={u.unitNumber}>
-                                                {u.unitNumber} ({u.typeCode || u.type}) - ${u.basePrice.toLocaleString()}
+                                                {u.unitNumber} ({u.typeCode}) - ${u.basePrice.toLocaleString()}
                                             </option>
                                         ))}
                                     </select>

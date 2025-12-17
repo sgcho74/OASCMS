@@ -12,7 +12,9 @@ export default function InventoryDistributionChart() {
     const data = [
         { name: 'Available', value: statusCounts['Available'] || 0, color: '#10B981' }, // Green
         { name: 'Reserved', value: statusCounts['Reserved'] || 0, color: '#F59E0B' },  // Yellow
+        { name: 'Contract Pending', value: statusCounts['ContractPending'] || 0, color: '#06B6D4' }, // Cyan
         { name: 'Sold', value: statusCounts['Sold'] || 0, color: '#4F46E5' },      // Indigo
+        { name: 'Lottery Locked', value: statusCounts['LotteryLocked'] || 0, color: '#8B5CF6' }, // Violet
         { name: 'OnHold', value: statusCounts['OnHold'] || 0, color: '#EF4444' },    // Red
     ].filter(item => item.value > 0);
 
@@ -30,7 +32,7 @@ export default function InventoryDistributionChart() {
                             outerRadius={80}
                             paddingAngle={5}
                             dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            label={({ name, percent }) => `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`}
                         >
                             {data.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} />

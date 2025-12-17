@@ -1,5 +1,5 @@
 import { Reservation } from '@/store/useReservationStore';
-import { X, User, Phone, Calendar, FileText, Award } from 'lucide-react';
+import { X, User, Phone, Calendar, FileText, Award, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface CustomerDetailsModalProps {
@@ -59,9 +59,9 @@ export default function CustomerDetailsModal({ reservation, unitDetails, onClose
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
                                 <p>
                                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${reservation.status === 'Active' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                                            reservation.status === 'Converted' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                                reservation.status === 'Cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                                                    'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                        reservation.status === 'Converted' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                            reservation.status === 'Cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                                                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                                         }`}>
                                         {reservation.status}
                                     </span>
@@ -103,6 +103,44 @@ export default function CustomerDetailsModal({ reservation, unitDetails, onClose
                                 Notes
                             </h3>
                             <p className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{reservation.notes}</p>
+                        </div>
+                    )}
+
+                    {/* Documents */}
+                    {reservation.documents && reservation.documents.length > 0 && (
+                        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                            <h3 className="mb-3 flex items-center text-lg font-medium text-gray-900 dark:text-gray-100">
+                                <FileText className="mr-2 h-5 w-5" />
+                                Attached Documents
+                            </h3>
+                            <div className="space-y-2">
+                                {reservation.documents.map((doc) => (
+                                    <div key={doc.id} className="flex items-center justify-between rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                                {doc.type === 'ID Card' && '신분증 사본'}
+                                                {doc.type === 'Resident Registration' && '주민등록등본'}
+                                                {doc.type === 'Seal Certificate' && '인감증명서'}
+                                                {doc.type === 'Bankbook Copy' && '환불계좌 통장사본'}
+                                                {doc.type === 'Deposit Receipt' && '입금확인증'}
+                                                {!['ID Card', 'Resident Registration', 'Seal Certificate', 'Bankbook Copy', 'Deposit Receipt'].includes(doc.type) && doc.type}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {doc.fileName} • {format(new Date(doc.uploadedAt), 'yyyy-MM-dd HH:mm')}
+                                            </p>
+                                        </div>
+                                        <a
+                                            href={doc.fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="rounded-full p-2 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200"
+                                            title="Download / Preview"
+                                        >
+                                            <Download className="h-4 w-4" />
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useReservationStore } from '@/store/useReservationStore';
+import { useReservationStore, ReservationDocument } from '@/store/useReservationStore';
 import { useUnitStore } from '@/store/useUnitStore';
 import { useLotteryStore } from '@/store/useLotteryStore';
-import { X, Search } from 'lucide-react';
+import { X, Search, Eye } from 'lucide-react';
 import { addDays, format } from 'date-fns';
+import { compressImage } from '@/utils/fileUtils';
 
 interface CreateReservationModalProps {
     isOpen: boolean;
@@ -28,6 +29,7 @@ export default function CreateReservationModal({ isOpen, onClose, initialData, o
     const [customerPhone, setCustomerPhone] = useState('');
     const [reservationDate, setReservationDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [expiryDate, setExpiryDate] = useState(format(addDays(new Date(), 7), 'yyyy-MM-dd'));
+    const [documents, setDocuments] = useState<ReservationDocument[]>([]);
 
     // Reset state when modal opens
     useEffect(() => {
@@ -104,6 +106,7 @@ export default function CreateReservationModal({ isOpen, onClose, initialData, o
                 reservationDate,
                 expiryDate,
                 status: 'Active',
+                documents,
             });
             setUnitStatus([selectedUnitId], 'Reserved');
 
@@ -299,6 +302,95 @@ export default function CreateReservationModal({ isOpen, onClose, initialData, o
                                     onChange={(e) => setExpiryDate(e.target.value)}
                                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                 />
+                            </div>
+                        </div>
+
+                        {/* Documents Section */}
+                        <div className="rounded-md border border-gray-200 p-4 dark:border-gray-700">
+                            <h3 className="mb-3 text-sm font-medium text-gray-900 dark:text-white">Required Documents</h3>
+                            <div className="space-y-3">
+                                {(['ID Card', 'Resident Registration', 'Seal Certificate', 'Bankbook Copy', 'Deposit Receipt'] as const).map((docType) => {
+                                    const uploaded = documents.find(d => d.type === docType);
+                                    return (
+                                        <div key={docType} className="flex items-center justify-between rounded-md bg-gray-50 p-2 dark:bg-gray-800">
+                                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                                                {docType === 'ID Card' && '신분증 사본'}
+                                                {docType === 'Resident Registration' && '주민등록등본'}
+                                                {docType === 'Seal Certificate' && '인감증명서'}
+                                                {docType === 'Bankbook Copy' && '환불계좌 통장사본'}
+                                                {docType === 'Deposit Receipt' && '입금확인증'}
+                                            </span>
+                                            {uploaded ? (
+                                                <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                                                    <span className="text-xs truncate max-w-[150px]">{uploaded.fileName}</span>
+                                                    <a
+                                                        href={uploaded.fileUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full text-gray-500"
+                                                        title="Preview"
+                                                    >
+                                                        <Eye className="h-3 w-3" />
+                                                    </a>
+                                                    <button
+                                                        onClick={() => setDocuments(docs => docs.filter(d => d.type !== docType))}
+                                                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="relative">
+                                                    <input
+                                                        type="file"
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        accept="image/*,application/pdf"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                try {
+                                                                    let fileToUpload = file;
+
+                                                                    // Compress if image
+                                                                    if (file.type.startsWith('image/')) {
+                                                                        fileToUpload = await compressImage(file);
+                                                                    }
+
+                                                                    // Upload to API
+                                                                    const formData = new FormData();
+                                                                    formData.append('file', fileToUpload);
+
+                                                                    const res = await fetch('/api/upload', {
+                                                                        method: 'POST',
+                                                                        body: formData,
+                                                                    });
+
+                                                                    if (!res.ok) throw new Error('Upload failed');
+                                                                    const data = await res.json();
+
+                                                                    const newDoc: ReservationDocument = {
+                                                                        id: crypto.randomUUID(),
+                                                                        type: docType,
+                                                                        fileName: file.name,
+                                                                        fileUrl: data.url,
+                                                                        uploadedAt: new Date().toISOString()
+                                                                    };
+                                                                    setDocuments(prev => [...prev, newDoc]);
+                                                                } catch (err) {
+                                                                    console.error('Upload error:', err);
+                                                                    alert('File upload failed. Please try again.');
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                    <button className="rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                                                        Upload
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 

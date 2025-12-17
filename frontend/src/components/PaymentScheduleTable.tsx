@@ -195,7 +195,10 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                             Partial Paid
                           </span>
                         )}
-                        {!isPaid && (
+                        {/* Show button if not fully paid (even if status says paid, if amount is partial, we might want to allow paying remainder?
+                            Actually, let's strictly follow: if outstanding > 0, show button.
+                        */}
+                        {outstanding > 0 && (
                           <PermissionGate permission="contracts:write">
                             <button
                               onClick={() => handleMarkAsPaid(schedule.id)}
@@ -206,7 +209,7 @@ export default function PaymentScheduleTable({ contractId, schedules }: Props) {
                             </button>
                           </PermissionGate>
                         )}
-                        {isPaid && (
+                        {!isPartiallyPaid && isPaid && (
                           <span className="text-xs text-green-600 dark:text-green-400 font-medium">✓ Paid</span>
                         )}
                       </td>

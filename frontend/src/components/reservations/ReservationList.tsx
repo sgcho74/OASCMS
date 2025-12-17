@@ -154,6 +154,13 @@ export default function ReservationList({ reservations }: ReservationListProps) 
                     onClose={() => setSelectedReservation(null)}
                 />
             )}
+
+            <CreateContractModal
+                isOpen={isContractModalOpen}
+                onClose={() => setIsContractModalOpen(false)}
+                initialData={contractInitialData}
+                onSuccess={handleContractCreated}
+            />
         </div>
     );
 }

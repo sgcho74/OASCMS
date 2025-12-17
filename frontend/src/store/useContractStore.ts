@@ -35,6 +35,10 @@ export interface Contract {
   payments: Payment[]; // Legacy - keeping for compatibility
   paymentSchedules: PaymentSchedule[]; // New multi-stage schedules
   createdAt: string;
+  buyerSignature: string | null;
+  buyerSignedAt: string | null;
+  companySignature: string | null;
+  companySignedAt: string | null;
 }
 
 // Default payment template: 20% Deposit (2×10%), 40% Progress (4×10%), 40% Final
@@ -90,9 +94,11 @@ const generatePaymentSchedules = (totalAmount: number, contractDate: string): Pa
 
 interface ContractState {
   contracts: Contract[];
-  addContract: (contract: Omit<Contract, 'id' | 'createdAt' | 'payments' | 'paymentSchedules'>) => void;
+  addContract: (contract: Omit<Contract, 'id' | 'createdAt' | 'payments' | 'paymentSchedules' | 'buyerSignature' | 'buyerSignedAt' | 'companySignature' | 'companySignedAt'>) => void;
   deleteContract: (id: string) => void;
   updatePaymentStatus: (contractId: string, paymentId: string, status: 'pending' | 'paid' | 'overdue') => void;
+  signContractBuyer: (id: string, signatureData: string) => void;
+  signContractCompany: (id: string, signatureData: string) => void;
 }
 
 // Helper to generate payment schedule
@@ -126,6 +132,8 @@ const generateSchedule = (totalAmount: number, startDate: string): Payment[] => 
   return payments;
 };
 
+
+
 export const useContractStore = create<ContractState>()(
   persist(
     (set) => ({
@@ -138,11 +146,16 @@ export const useContractStore = create<ContractState>()(
               ...data,
               id: crypto.randomUUID(),
               createdAt: new Date().toISOString(),
+              status: 'draft',
               payments: [], // Legacy - empty
               paymentSchedules: generatePaymentSchedules(
                 data.totalAmount,
                 new Date().toISOString().split('T')[0]
               ),
+              buyerSignature: null,
+              buyerSignedAt: null,
+              companySignature: null,
+              companySignedAt: null,
             },
           ],
         })),
@@ -162,6 +175,36 @@ export const useContractStore = create<ContractState>()(
               }
               : contract
           ),
+        })),
+      signContractBuyer: (id, signatureData) =>
+        set((state) => ({
+          contracts: state.contracts.map((c) =>
+            c.id === id
+              ? {
+                ...c,
+                buyerSignature: signatureData,
+                buyerSignedAt: new Date().toISOString(),
+                // If company also signed (async scenario), activate?
+                // For now, we wait for company manual approval/sign step.
+              }
+              : c
+          ),
+        })),
+      signContractCompany: (id, signatureData) =>
+        set((state) => ({
+          contracts: state.contracts.map((c) => {
+            if (c.id !== id) return c;
+
+            // Check if buyer has signed to activate
+            const newStatus = c.buyerSignature || c.buyerSignedAt ? 'active' : 'draft';
+
+            return {
+              ...c,
+              companySignature: signatureData, // Optional: if we want to store admin signature/stamp
+              companySignedAt: new Date().toISOString(),
+              status: newStatus as ContractStatus
+            };
+          }),
         })),
     }),
     {

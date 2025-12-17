@@ -15,7 +15,7 @@ export default function DashboardStats() {
 
     // Calculate Unit Sales %
     const totalUnits = units.length;
-    const soldUnits = units.filter((u) => u.status === 'Sold').length;
+    const soldUnits = units.filter((u) => u.status === 'Sold' || u.status === 'ContractPending').length;
     const salesPercentage = totalUnits > 0 ? Math.round((soldUnits / totalUnits) * 100) : 0;
 
     // Active Reservations

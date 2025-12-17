@@ -13,7 +13,7 @@ export default function SalesTrendChart() {
         const monthName = format(date, 'MMM');
 
         const monthlyContracts = contracts.filter((c) => {
-            const contractDate = new Date(c.contractDate);
+            const contractDate = new Date(c.createdAt);
             return isWithinInterval(contractDate, { start: monthStart, end: monthEnd });
         });
 
@@ -39,6 +39,7 @@ export default function SalesTrendChart() {
                         <Tooltip
                             contentStyle={{ backgroundColor: '#1F2937', borderColor: '#374151', color: '#F3F4F6' }}
                             itemStyle={{ color: '#F3F4F6' }}
+                            cursor={{ fill: 'rgba(107, 114, 128, 0.1)' }}
                         />
                         <Legend />
                         <Bar yAxisId="left" dataKey="Sales" fill="#4F46E5" radius={[4, 4, 0, 0]} />

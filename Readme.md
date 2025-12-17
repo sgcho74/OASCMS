@@ -62,6 +62,19 @@ OASCMS is a comprehensive web-based application designed for managing real estat
     ```
     Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Project Structure
+
+```bash
+├── frontend/
+│   ├── public/          # Static assets (images, icons)
+│   ├── messages/        # i18n translation files (en, ko, ar)
+│   └── src/
+│       ├── app/         # Next.js App Router pages
+│       ├── components/  # Reusable UI components
+│       ├── store/       # Zustand state management
+│       └── types/       # TypeScript type definitions
+```
+
 ## Contributing
 
 1.  Create a feature branch.

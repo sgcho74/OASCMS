@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Lead, useLeadStore, LeadStatus } from '@/store/useLeadStore';
+import { useState } from 'react';
+import { useLeadStore, LeadStatus } from '@/store/useLeadStore';
 import { useReservationStore, Reservation } from '@/store/useReservationStore';
 import CreateReservationModal from '@/components/reservations/CreateReservationModal';
-import { X, CheckCircle, XCircle } from 'lucide-react';
+import { X, CheckCircle, XCircle, FileText, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface LeadDetailModalProps {
@@ -14,20 +14,18 @@ interface LeadDetailModalProps {
 export default function LeadDetailModal({ isOpen, leadId, onClose }: LeadDetailModalProps) {
     const { leads, updateLead } = useLeadStore();
     const { reservations } = useReservationStore();
-    const [lead, setLead] = useState<Lead | null>(null);
-    const [isEditing, setIsEditing] = useState(false);
+    const lead = leads.find((l) => l.id === leadId) || null;
 
     // Conversion State
     const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
     const [potentialMatches, setPotentialMatches] = useState<Reservation[]>([]);
     const [showMatchSelection, setShowMatchSelection] = useState(false);
 
-    useEffect(() => {
-        if (leadId) {
-            const foundLead = leads.find((l) => l.id === leadId);
-            setLead(foundLead || null);
-        }
-    }, [leadId, leads]);
+    const linkedReservation = lead?.convertedToCustomerId
+        ? reservations.find(r => r.id === lead.convertedToCustomerId)
+        : null;
+
+
 
     if (!isOpen || !lead) return null;
 
@@ -177,6 +175,42 @@ export default function LeadDetailModal({ isOpen, leadId, onClose }: LeadDetailM
                                             This lead has been converted to a customer (ID: {lead.convertedToCustomerId})
                                         </p>
                                     </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Linked Documents (from Reservation) */}
+                        {linkedReservation?.documents && linkedReservation.documents.length > 0 && (
+                            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                                <h3 className="mb-3 flex items-center text-lg font-medium text-gray-900 dark:text-gray-100">
+                                    <FileText className="mr-2 h-5 w-5" />
+                                    Attached Documents (from Reservation)
+                                </h3>
+                                <div className="space-y-2">
+                                    {linkedReservation.documents.map((doc) => (
+                                        <div key={doc.id} className="flex items-center justify-between rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
+                                            <div>
+                                                <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+                                                    {doc.type === 'ID Card' && '신분증 사본'}
+                                                    {doc.type === 'Resident Registration' && '주민등록등본'}
+                                                    {doc.type === 'Seal Certificate' && '인감증명서'}
+                                                    {doc.type === 'Bankbook Copy' && '환불계좌 통장사본'}
+                                                    {doc.type === 'Deposit Receipt' && '입금확인증'}
+                                                    {!['ID Card', 'Resident Registration', 'Seal Certificate', 'Bankbook Copy', 'Deposit Receipt'].includes(doc.type) && doc.type}
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    {doc.fileName} • {format(new Date(doc.uploadedAt), 'yyyy-MM-dd HH:mm')}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => alert(`Downloading ${doc.fileName}... (Mock Action)`)}
+                                                className="rounded-full p-2 text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-gray-200"
+                                                title="Download"
+                                            >
+                                                <Download className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
